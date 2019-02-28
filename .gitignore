@@ -124,3 +124,9 @@ dmypy.json
 .venv/
 
 # End of https://www.gitignore.io/api/python
+
+# IDE files
+.vscode/
+
+# Local config
+config/local.py
