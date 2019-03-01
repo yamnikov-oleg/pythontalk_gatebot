@@ -10,7 +10,7 @@ from telegram.utils.request import Request
 
 from config.base import BaseConfig
 
-from .models import init_models, get_or_create_user
+from .models import init_models
 from .questions import load_question
 
 
@@ -78,14 +78,12 @@ class GateBot:
         self.updater.start_polling()
 
     def new_chat_members(self, bot: Bot, update: Update) -> None:
-        with self.db_session() as session:
-            self.logger.info("New user joined")
-            get_or_create_user(session, update.message.new_chat_members[0])
-            bot.restrict_chat_member(
-                chat_id=update.message.chat.id,
-                user_id=update.message.new_chat_members[0].id,
-                can_send_message=False,
-                can_send_media_messages=False,
-                can_send_other_messages=False,
-                can_add_web_page_previews=False,
-            )
+        self.logger.info("New user joined")
+        bot.restrict_chat_member(
+            chat_id=update.message.chat.id,
+            user_id=update.message.new_chat_members[0].id,
+            can_send_message=False,
+            can_send_media_messages=False,
+            can_send_other_messages=False,
+            can_add_web_page_previews=False,
+        )
