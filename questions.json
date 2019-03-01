@@ -1,0 +1,978 @@
+[
+    {
+        "answer": 1,
+        "options": [
+            "<code>__iter__()</code>",
+            "<code>__iter__()</code> and <code>__next__()</code>",
+            "<code>__iter__()</code> and <code>__super__()</code>",
+            "<code>__iter__()</code>, <code>__super__()</code> and <code>__next__()</code>"
+        ],
+        "question": "What are the method(s) that iterator object must implement?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "It's an argument to the function",
+            "It's a hint for the type of <code>i</code>",
+            "It's an assertion of the type of <code>i</code>",
+            "It's a syntax error"
+        ],
+        "question": "What does <code>int</code> mean in this line: <code>def func(i: int):</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "You add it to the super classes of a class",
+            "You write it above the function or the class @likethis",
+            "You implement the special <code>__mixin__</code> method",
+            "You import it from <code>mixin</code> module"
+        ],
+        "question": "How do you use a <code>mixin</code>?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>hurricane</code>",
+            "<code>knuckles</code>",
+            "<code>flask</code>",
+            "<code>frank</code>"
+        ],
+        "question": "What among the listed options is a python web framework?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>ValueError</code>",
+            "<code>IntError</code>",
+            "<code>ArgumentError</code>",
+            "<code>TypeError</code>"
+        ],
+        "question": "What error would be thrown by this line: <code>int(None)</code>"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "Single-quoted strings are used to represent single characters",
+            "Single-quoted strings are recommended for shorter strings",
+            "Double-quoted strings is an obsolete syntax of older python versions",
+            "There is no difference"
+        ],
+        "question": "What is the difference between 'single-quoted' and \"double-quoted\" strings?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "Class A inherits from both B and C",
+            "Class A inherits from B, and B inherits from C",
+            "Multiple classes inherit from A",
+            "Class A inherits multiple methods of class B"
+        ],
+        "question": "What is an example of multiple inheritance?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "int",
+            "float",
+            "double",
+            "rational"
+        ],
+        "question": "What is the type of this expression's value (Python 3): <code>1/2</code>?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "0",
+            "1",
+            "0.5",
+            "It's a syntax error"
+        ],
+        "question": "What would be the value of following expression: <code>1//2</code>?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "'hunter2'",
+            "2",
+            "None",
+            "TypeError"
+        ],
+        "question": "What would be the value of <code>d['password']</code> given <code>d = {'username', 'carl', 'password', 'hunter2'}</code>?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "'1234'",
+            "'123 4'",
+            "127",
+            "TypeError"
+        ],
+        "question": "What would be the value of following expression: <code>'123' + 4</code>?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "By passing the given list to the <code>iter()</code> function.",
+            "By using a <code>for</code> loop.",
+            "By using a <code>while</code> loop.",
+            "You cannot create an iterable object from the list."
+        ],
+        "question": "How can you create an iterator object from a list?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "an iterable",
+            "a generator function",
+            "an anonymous function",
+            "None of the above"
+        ],
+        "question": "If a function contains at least one <code>yield</code> statement, it becomes ______"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "We must have a nested function (function inside a function).",
+            "The nested function must refer to a value defined in the enclosing function.",
+            "The enclosing function must return the nested function.",
+            "All of the above"
+        ],
+        "question": "What are the *criterias* that must be met to create closure in Python?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "1 3",
+            "1 9",
+            "1 9 36 100",
+            "1"
+        ],
+        "question": "What is the output of the following code? \n\n<code>my_list = [1, 3, 6, 10]</code>\n<code>a = (x**2 for x in my_list)</code>\n<code>print(next(a), next(a))</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>getter()</code> and <code>setter()</code>",
+            "<code>getter()</code>, <code>setter()</code> and <code>delete()</code>",
+            "<code>getter()</code> and <code>delete()</code>",
+            "<code>setter()</code> and <code>delete()</code>"
+        ],
+        "question": "In Python, there is a built-in function <code>property()</code> that returns a property object. The property object has which of the following methods?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "2",
+            "3",
+            "(2,3)"
+        ],
+        "question": "What will be placed in <code>a</code>?\n\n<code>a = 2,3</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>a = 1</code>",
+            "<code>a = (1,)</code>",
+            "<code>a = (1)</code>",
+            "<code>a = tuple(1)</code>"
+        ],
+        "question": "How to assign a tuple of length <code>1</code> to <code>a</code>?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>KeyError</code>",
+            "<code>[1,2]</code>",
+            "<code>{'a':1, 'b':2}</code>"
+        ],
+        "question": "What is the result of this code?\n\n<code>a = {'a':1, 'b':2, 'c':3}</code>\n<code>a['a', 'b']</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>KeyError</code>",
+            "<code>1</code>"
+        ],
+        "question": "What is the result of this code?\n\n<code>a = {(1, 2):1, (2, 3):2}</code>\n<code>a[1, 2]</code>"
+    },
+    {
+        "answer": 4,
+        "options": [
+            "It causes <code>SyntaxError</code>",
+            "<code>{'a': 1,'b': 2, 'a': 3}</code>",
+            "The behavior is undefined.",
+            "<code>{'a': 1,'b': 2}</code>",
+            "<code>{'a': 3,'b': 2}</code>"
+        ],
+        "question": "What will be placed in a?\n\n<code>a = {'a': 1,'b':2, 'a':3}</code>"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>IndexError</code>",
+            "<code>TypeError</code>",
+            "<code>[10, 20, 30, 40, 3]</code>",
+            "<code>[10, 20, 30, 40, 2, 3]</code>"
+        ],
+        "question": "What will be placed in a?\n\n<code>a = [1,2,3]</code>\n<code>a[-3:-1] = 10,20,30,40</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>SyntaxError</code>",
+            "<code>ValueError</code>",
+            "<code>[10, 2, 20, 4, 30, 6, 40, 8, 50, 9, 60]</code>"
+        ],
+        "question": "What is the result of this code?\n\n<code>a = [1, 2, 3, 4, 5, 6, 7, 8, 9]</code>\n<code>a[::2] = 10, 20, 30, 40, 50, 60</code>"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>SyntaxError</code>",
+            "<code>ValueError</code>",
+            "<code>[3, 2]</code>",
+            "<code>[4, 3]</code>",
+            "5. <code>[4, 3, 2]</code>"
+        ],
+        "question": "What is the result of this code?\n\n<code>a = [1, 2, 3, 4, 5]</code>\n<code>a[3:1:-1]</code>"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>chr</code>",
+            "<code>ord</code>",
+            "<code>int</code>",
+            "<code>str</code>"
+        ],
+        "question": "What is the type of <code>b</code>?\n\n<code>a = \"bay\"</code>\n<code>b = a[0]</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>float</code>",
+            "<code>complex</code>",
+            "<code>int</code>",
+            "<code>str</code>"
+        ],
+        "question": "What is the type of <code>b</code> (Python 3)?\n\n<code>a = -1</code>\n<code>b = a ** 0.5</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>float</code>",
+            "<code>int</code>"
+        ],
+        "question": "What is the type of <code>a</code>?\n\n<code>a = 10/5</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>float</code>",
+            "<code>int</code>"
+        ],
+        "question": "What is the type of <code>a</code>?\n\n<code>a = 10.0//5</code>"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>dict</code>",
+            "<code>set</code>",
+            "It causes <code>SyntaxError</code>"
+        ],
+        "question": "What is the type of <code>a</code>?\n\n<code>a = {1, 2:3}</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>tuple</code>",
+            "<code>generator</code>"
+        ],
+        "question": "What is the type of <code>a</code>?\n\n<code>a = (b for b in [1,2])</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>-1</code>",
+            "<code>1</code>"
+        ],
+        "question": "What will be in <code>a</code>?\n\n<code>a = -1 ** 2</code>"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>2.0</code>",
+            "<code>3.0</code>",
+            "<code>-2.0</code>",
+            "<code>-3.0</code>"
+        ],
+        "question": "<code>a</code> == ?\n\n<code>a = -4 // 1.5</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "question": "Is this syntax valid?\n\n<code>a = { i for i in range(0,10,2) }</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "question": "Is this syntax valid?\n\n<code>a = { i,j for i in range(0,10,2) for j in range(1,10,2)}</code>"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "It causes a <code>SyntaxError</code>",
+            "<code>{0: 9}</code>",
+            "<code>{0: 10, 1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17, 8: 18, 9: 19}</code>"
+        ],
+        "question": "<code>a</code> == ?\n\n<code>a = { b : b+10 for b in range(10) }</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "Yes",
+            "No, it causes <code>SyntaxError</code>: Generator expression must be parenthesized"
+        ],
+        "question": "Is this syntax valid?\n\n<code>def f(a):</code>\n<code>    pass</code>\n<code>f(a for a in [1,2])</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>(1, 2)</code>",
+            "<code>(2, 1)</code>",
+            "It causes <code>TypeError: f() got an unexpected keyword argument</code>"
+        ],
+        "question": "What does this function return?\n\n<code>def f(a, b):</code>\n<code>    return a, b</code>\n<code>f(**{'b':2,'a':1})</code>"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>([1], [1])</code>",
+            "<code>([1], [1,1])</code>",
+            "<code>([1,1], [1,1])</code>"
+        ],
+        "question": "a == ?\n\n<code>def f(a=[]):</code>\n<code>    a.append(1)</code>\n<code>    return a</code>\n<code>a=(f(),f())</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>True</code>",
+            "<code>False</code>",
+            "It causes <code>SyntaxError</code>"
+        ],
+        "question": "<code>a</code> == ?\n\n<code>a = 3 &lt; 5 &lt; 7</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>True</code>",
+            "<code>False</code>",
+            "It causes <code>SyntaxError</code>"
+        ],
+        "question": "<code>a</code> == ?\n\n<code>a = 1 &lt; 2 == 2 &gt; 1 in [1,2,3] &lt; [2,3,4,5] != 1</code>"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "One",
+            "Two",
+            "Three",
+            "Four"
+        ],
+        "question": "How many times will <code>f()</code> be printed?\n\n<code>def f():</code>\n<code>    print(\"f()\")</code>\n<code>    return 1</code>\n<code>a = 0&lt;f()&lt;2</code>\n<code>a = 0&lt;f() and f()&lt;2</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>True</code>",
+            "<code>False</code>",
+            "It causes <code>TypeError</code>"
+        ],
+        "question": "<code>a</code> == ?\n\n<code>a = [1,2,3]&gt;[2,3]</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>True</code>",
+            "<code>False</code>",
+            "It causes <code>TypeError</code>"
+        ],
+        "question": "<code>a</code> == ?\n\n<code>a = {1,2,3}&lt;{2,3,4,5}</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>False</code>",
+            "It causes <code>TypeError</code>"
+        ],
+        "question": "<code>a</code> == ? (Python 3)\n\n<code>a = {1:2,2:3,3:4}&lt;{2:5,3:6,4:7,5:8}</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "True",
+            "False",
+            "It causes <code>TypeError</code>"
+        ],
+        "question": "a == ?\n\n<code>a = {1:'a',2:'b'}=={2:'b',1:'a'}</code>"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "True",
+            "False",
+            "'bay'",
+            "'cat"
+        ],
+        "question": "a == ?\n\n<code>a = ( 'bay' and 'cat' )</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "Yes.",
+            "No."
+        ],
+        "question": "Will <code>f()</code> be printed?\n\n<code>def f():</code>\n<code>    print(\"f()\")</code>\n<code>    yield 1</code>\n<code>f()</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "It is impossible",
+            "<code>a.__b__</code>",
+            "<code>a._a__b__</code>"
+        ],
+        "question": "How to get access to <code>__b__</code> in outside of class <code>a</code>?\n\n<code>class a:</code>\n<code>    __b__ = \"hello\"</code>"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "It is impossible",
+            "<code>a.__b__</code>",
+            "<code>a._a__b__</code>"
+        ],
+        "question": "How to get access to <code>__b_</code> in outside of class <code>a</code>?\n\n<code>class a:</code>\n<code>    __b_ = \"hello\"</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "Vaild Python 2 code.",
+            "Vaild Python 3 code."
+        ],
+        "question": "What is this:\n\n<code>exec((lambda x:x).func_code.__class__(0,0,0,0,\"\u0091\u00030d7\u0013\",(),(),(),\"\",\"\",0,\"\"))</code>"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>-1</code>",
+            "<code>3</code>",
+            "<code>2</code>",
+            "<code>SyntaxError</code>"
+        ],
+        "question": "What would be the result of the following expression?\n<code>1--2</code>"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "Takes <code>x</code> to the power of <code>y</code>",
+            "Multiplies <code>x</code> by the <code>y</code> twice",
+            "Multiplies <code>x</code> by the value referenced by the <code>y</code> pointer",
+            "It's a syntax error"
+        ],
+        "question": "What does <code>x**y</code> line do?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>a = &amp;b</code>",
+            "<code>a = *b</code>",
+            "<code>*a = &amp;b</code>",
+            "Python doesn't have pointers"
+        ],
+        "question": "How do you define a pointer in Python?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>ItemCount</code>",
+            "<code>itemCount</code>",
+            "<code>item_count</code>",
+            "<code>itemcount</code>"
+        ],
+        "question": "Which variable name is written in snake case?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>x12</code>",
+            "<code>x_12</code>",
+            "<code>12x</code>",
+            "<code>__x12__</code>"
+        ],
+        "question": "Which is NOT a valid variable name?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>4</code>",
+            "<code>5</code>",
+            "<code>6</code>",
+            "<code>0</code>"
+        ],
+        "question": "What is the last value produced by <code>range(5)</code>?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>False</code>",
+            "<code>True</code>",
+            "<code>0</code>",
+            "<code>1</code>"
+        ],
+        "question": "What does <code>True or False</code> evaluates to?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>False</code>",
+            "<code>True</code>",
+            "<code>0</code>",
+            "<code>1</code>"
+        ],
+        "question": "What does <code>True and False</code> evaluates to?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "A linter",
+            "A formatter",
+            "A document recommending how to format Python code",
+            "A meme frog"
+        ],
+        "question": "What is PEP8?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>&lt;</code>",
+            "<code>!=</code>",
+            "<code>&lt;=</code>",
+            "<code>=</code>"
+        ],
+        "question": "What is NOT a comparison operator?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "To define variables",
+            "To define constants",
+            "To define functions",
+            "There is not such keyword in Python"
+        ],
+        "question": "What is <code>def</code> keyword used for?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "To define variables",
+            "To define constants",
+            "To define functions",
+            "There is not such keyword in Python"
+        ],
+        "question": "What is <code>var</code> keyword used for?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>1</code>",
+            "<code>2</code>",
+            "<code>3</code>",
+            "<code>None</code>"
+        ],
+        "question": "What is the length of this list: <code>[1, 2, None]</code>?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>'a'</code>",
+            "<code>'b'</code>",
+            "<code>'c'</code>",
+            "It's an index error"
+        ],
+        "question": "What value is <code>l[-1]</code> given <code>l = ['a', 'b', 'c']</code>?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>int</code>",
+            "<code>str</code>",
+            "<code>tuple</code>",
+            "<code>list</code>"
+        ],
+        "question": "Which of these types is NOT immutable?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>t = a, b, c</code>",
+            "<code>a, b, c = t</code>",
+            "<code>values = struct.unpack('hhl', t)</code>",
+            "<code>values = tuple.unpack(t)</code>"
+        ],
+        "question": "What is an example of tuple unpacking?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "Both of them have a length",
+            "Elements in both of them are always unique and cannot be duplicated",
+            "Order of elements is preserved in both of them",
+            "Elements in both of them can be accessed by index"
+        ],
+        "question": "What is a common feature of sets and lists in Python?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>False</code>",
+            "<code>'hello'</code>",
+            "<code>'lo'</code>",
+            "<code>True</code>"
+        ],
+        "question": "What does this line evaluates to?\n<code>'HELlo'.lower()</code>"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>['alex', 'mike', 'nina'].join(', ')</code>",
+            "<code>join(', ', ['alex', 'mike', 'nina'])</code>",
+            "<code>join(['alex', 'mike', 'nina'], ', ')</code>",
+            "<code>', '.join(['alex', 'mike', 'nina'])</code>"
+        ],
+        "question": "How do you concatenate a list of strings with commas between them?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>s.split(',')</code>",
+            "<code>split(',', s)</code>",
+            "<code>split(s, ',')</code>",
+            "<code>','.split(s)</code>"
+        ],
+        "question": "How do you split a string <code>s</code> by comma?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>^1+$</code>",
+            "<code>^123$</code>",
+            "<code>1+</code>",
+            "<code>123</code>"
+        ],
+        "question": "Which one of these strings would be matched against this regex?\n<code>^\\d+$</code>"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>'r'</code>",
+            "<code>'rb'</code>",
+            "<code>'w'</code>",
+            "<code>'wb'</code>"
+        ],
+        "question": "Which mode of <code>open</code> function should you use to open a binary file for writing?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>10</code>",
+            "<code>10.3333</code>",
+            "<code>1</code>",
+            "It's a syntax error"
+        ],
+        "question": "What does <code>31 % 3</code> evaluate to?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>3</code>",
+            "<code>3.0666</code>",
+            "<code>0.1</code>",
+            "It's a syntax error"
+        ],
+        "question": "What does <code>4.6 % 1.5</code> evaluate to?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>\"DBCAB\"</code>",
+            "<code>\"DBCDB\"</code>",
+            "<code>\"ABCDB\"</code>",
+            "<code>\"BCB\"</code>"
+        ],
+        "question": "What is the result of the following code: <code>\"ABCAB\".replace(\"A\", \"D\")</code>?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>json.parse(json_str)</code>",
+            "<code>json.load(json_str)</code>",
+            "<code>json.parses(json_str)</code>",
+            "<code>json.loads(json_str)</code>"
+        ],
+        "question": "How could you parse a json string <code>json_str</code>?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>'my string'.encode('utf-8')</code>",
+            "<code>encode('my string', 'utf-8')</code>",
+            "<code>utf8.encode('my string')</code>",
+            "<code>encode('utf-8', 'my string')</code>"
+        ],
+        "question": "How to encode a string into bytes?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>b'my bytes'.decode('utf-8')</code>",
+            "<code>decode(b'my bytes', 'utf-8')</code>",
+            "<code>utf8.decode(b'my bytes')</code>",
+            "<code>decode('utf-8', b'my bytes')</code>"
+        ],
+        "question": "How to decode a string from bytes?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>try: ... catch: ...</code>",
+            "<code>with: ... catch: ...</code>",
+            "<code>try: ... except: ...</code>",
+            "<code>with: ... except: ...</code>"
+        ],
+        "question": "What is the operator used to catch exceptions in Python?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "<code>throw new ValueError()</code>",
+            "<code>throw ValueError()</code>",
+            "<code>raise new ValueError()</code>",
+            "<code>raise ValueError()</code>"
+        ],
+        "question": "How to properly throw an exception in Python?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>eval('ls -l')</code>",
+            "<code>subprocess.run(['ls', '-l'])</code>",
+            "<code>exec('ls -l')</code>",
+            "<code>subprocess.execute('ls -l')</code>"
+        ],
+        "question": "Which is a correct way to start another process in Python?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "repr is used to describe a value unambiguously",
+            "repr is used to simply output a value to end user",
+            "repr cannot be implemented for used-defined classes",
+            "str cannot be implemented for user-defined classes"
+        ],
+        "question": "How <code>repr</code> function is different from <code>str</code> function?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>'010'</code>",
+            "<code>'100'</code>",
+            "<code>'101'</code>",
+            "<code>'01{0}'</code>"
+        ],
+        "question": "What would be the result of the following code: <code>'{0}{1}{0}'.format(1, 0)</code>?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>logger = logging.getLogger(__name__); logger.error('Error!')</code>",
+            "<code>logger = logging.get_logger(__name__); logger.error('Error!')</code>",
+            "<code>logger = logging.get_logger(__name__); logger.log_error('Error!')</code>",
+            "<code>logger = logging.get_logger(__name__); logger.write('Error!')</code>"
+        ],
+        "question": "How could you log an error with python's logging module?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "Static methods cannot be called on instances of the class",
+            "Static methods cannot be overridden in a child class",
+            "Static methods don't have access to class object",
+            "There is no difference"
+        ],
+        "question": "What is the difference between class methods (define with <code>@classmethod</code>) and static methods (defined with <code>@staticmethod</code>)?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "Order of operations",
+            "Out of position",
+            "Objective-oriented programming",
+            "Object-oriented programming"
+        ],
+        "question": "What does OOP stand for in the context of software development with Python?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "Static typing",
+            "Dynamic typing",
+            "Both static and dynamic typing",
+            "Python is an untyped language"
+        ],
+        "question": "What kind of type system does Python have?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "An object can be used for a certain operation if it has the required methods and properties",
+            "An object can be used for a certain operation if it belongs to the required type",
+            "Explaining a problem to a rubber duck might help you solve it",
+            "If an object quacks, it's not an object, it's a duck, give it some bread"
+        ],
+        "question": "What is the principle of duck typing?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "Module A imports B and B imports A",
+            "Module A imports B and B imports C",
+            "Module A imports B several times",
+            "Module A imports B inside a while loop"
+        ],
+        "question": "What is an example of cyclic imports?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "pylint",
+            "pep8",
+            "autopep8",
+            "mypy"
+        ],
+        "question": "What is the name of a static type checker for Python?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "To run python scripts in a virtual machine",
+            "To isolate dependencies of each project",
+            "To install project's dependencies",
+            "To have multiple versions of Python on one PC"
+        ],
+        "question": "What is virtualenv tool used for?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>pip freeze > requirements.txt</code>",
+            "<code>pip list > requirements.txt</code>",
+            "<code>virtualenv freeze > requirements.txt</code>",
+            "<code>virtualenv list > requirements.txt</code>"
+        ],
+        "question": "How to put the list of packages installed in the environment into a requirements file?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>pip install requests</code>",
+            "<code>virtualenv install requests</code>",
+            "<code>python install requests</code>",
+            "<code>python -i requests</code>"
+        ],
+        "question": "How to install the <code>requests</code> Python package?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "<code>pip install -r requirements.txt</code>",
+            "<code>virtualenv install -r requirements.txt</code>",
+            "<code>python install -r requirements.txt</code>",
+            "<code>python -i requirements.txt</code>"
+        ],
+        "question": "How to install all the packages listed in a requirements file?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "Supervision over software team to make sure they produce good code",
+            "An exam passed by Python developers to get a certificate",
+            "A check making sure some value has the correct unit of measurement",
+            "A program making sure another piece of code works correctly"
+        ],
+        "question": "What is a unit test?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>self.requireEqual(a, b)</code>",
+            "<code>self.ensureEqual(a, b)</code>",
+            "<code>self.assertEqual(a, b)</code>",
+            "<code>self.equal(a, b)</code>"
+        ],
+        "question": "How to ensure two values are equal in a <code>unittest.TestCase</code> class?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>#!/usr/bin/python3</code>",
+            "<code>#!/usr/bin/env python3</code>",
+            "<code>#!/bin/python3</code>",
+            "<code>#!/usr/bin/python</code>"
+        ],
+        "question": "What is the proper shebang for a python 3 script?"
+    },
+    {
+        "answer": 3,
+        "options": [
+            "requests",
+            "numpy",
+            "matplotlib",
+            "Pillow"
+        ],
+        "question": "What is a popular Python library for image processing?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "requests",
+            "numpy",
+            "matplotlib",
+            "Pillow"
+        ],
+        "question": "What is a popular Python library for scientific computing?"
+    },
+    {
+        "answer": 0,
+        "options": [
+            "CPython",
+            "Python 3",
+            "pip",
+            "Pypi"
+        ],
+        "question": "How is the most popular implementation of Python called?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "1 tab",
+            "2-4 spaces",
+            "4 spaces",
+            "2 spaces"
+        ],
+        "question": "What indentation rule is recommended by PEP8?"
+    }
+]

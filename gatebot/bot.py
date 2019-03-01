@@ -11,6 +11,7 @@ from telegram.utils.request import Request
 from config.base import BaseConfig
 
 from .models import init_models, get_or_create_user
+from .questions import load_question
 
 
 logging.basicConfig(
@@ -26,6 +27,7 @@ class GateBot:
         self.logger = logging.getLogger('gatebot')
         self.updater = self._init_updater()
         self.db_sessionmaker = self._init_db_sessionmaker()
+        self.questions = load_question(self.config.QUESTIONS_FILE)
 
     def _init_updater(self) -> Updater:
         if self.config.PROXY_URL:
@@ -72,6 +74,7 @@ class GateBot:
 
     def run(self) -> None:
         self.logger.info("GateBot started")
+        self.logger.info("Loaded questions: %s", len(self.questions))
         self.updater.start_polling()
 
     def new_chat_members(self, bot: Bot, update: Update) -> None:

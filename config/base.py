@@ -9,3 +9,6 @@ class BaseConfig:
 
     # Database URL for SQLAlchemy
     SQLALCHEMY_URL = 'sqlite:///gatebot.db'
+
+    # Path to the json file, containing questions and answers for the quizzes.
+    QUESTIONS_FILE = 'questions.json'
