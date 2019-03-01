@@ -12,3 +12,6 @@ class BaseConfig:
 
     # Path to the json file, containing questions and answers for the quizzes.
     QUESTIONS_FILE = 'questions.json'
+
+    # How many questions are selected for a single quiz pass?
+    QUESTIONS_PER_QUIZ = 20

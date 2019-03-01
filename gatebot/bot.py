@@ -1,16 +1,17 @@
 import logging
+import random
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from telegram import Bot
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
 from telegram.update import Update
 from telegram.utils.request import Request
 
 from config.base import BaseConfig
 
-from .models import init_models
+from .models import init_models, create_quizpass, QuizPass
 from .questions import load_question
 
 
@@ -50,6 +51,7 @@ class GateBot:
             MessageHandler(
                 Filters.status_update.new_chat_members,
                 self.new_chat_members))
+        dispatcher.add_handler(CommandHandler('start', self.command_start))
 
         return updater
 
@@ -87,3 +89,16 @@ class GateBot:
             can_send_other_messages=False,
             can_add_web_page_previews=False,
         )
+
+    def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
+        questions = random.sample(
+            self.questions,
+            self.config.QUESTIONS_PER_QUIZ,
+        )
+        return create_quizpass(session, user_id, questions)
+
+    def command_start(self, bot: Bot, update: Update) -> None:
+        self.logger.info("/start command sent")
+
+        with self.db_session() as session:
+            self._generate_quizpass(session, update.message.from_user.id)
