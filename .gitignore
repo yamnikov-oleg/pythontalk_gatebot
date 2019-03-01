@@ -130,3 +130,6 @@ dmypy.json
 
 # Local config
 config/local.py
+
+# Local SQLite db
+*.db
