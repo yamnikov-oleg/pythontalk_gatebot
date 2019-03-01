@@ -4,13 +4,14 @@ from contextlib import contextmanager
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from telegram import Bot
+from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
 from telegram.update import Update
 from telegram.utils.request import Request
 
 from config.base import BaseConfig
 
+from . import messages
 from .models import init_models, create_quizpass, QuizPass
 from .questions import load_question
 
@@ -80,15 +81,17 @@ class GateBot:
         self.updater.start_polling()
 
     def new_chat_members(self, bot: Bot, update: Update) -> None:
-        self.logger.info("New user joined")
-        bot.restrict_chat_member(
-            chat_id=update.message.chat.id,
-            user_id=update.message.new_chat_members[0].id,
-            can_send_message=False,
-            can_send_media_messages=False,
-            can_send_other_messages=False,
-            can_add_web_page_previews=False,
-        )
+        for member in update.message.new_chat_members:
+            self.logger.info(
+                "New user %s joined, id: %s", member.first_name, member.id)
+            bot.restrict_chat_member(
+                chat_id=update.message.chat.id,
+                user_id=member.id,
+                can_send_message=False,
+                can_send_media_messages=False,
+                can_send_other_messages=False,
+                can_add_web_page_previews=False,
+            )
 
     def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
         questions = random.sample(
@@ -98,7 +101,25 @@ class GateBot:
         return create_quizpass(session, user_id, questions)
 
     def command_start(self, bot: Bot, update: Update) -> None:
-        self.logger.info("/start command sent")
+        if update.message.chat.id != update.message.from_user.id:
+            # Ignore commands sent not in pm
+            return
 
-        with self.db_session() as session:
-            self._generate_quizpass(session, update.message.from_user.id)
+        self.logger.info(
+            "/start command sent by %s, id: %s",
+            update.message.from_user.first_name,
+            update.message.from_user.id)
+
+        bot.send_message(
+            chat_id=update.message.chat.id,
+            text=messages.GETTING_STARTED.format(
+                first_name=update.message.from_user.first_name,
+                questions_total=self.config.QUESTIONS_PER_QUIZ,
+                answers_required=self.config.CORRECT_ANSWERS_REQUIRED,
+            ),
+            parse_mode="HTML",
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton(
+                    "Start the quiz", callback_data="start_quiz"),
+            ]]),
+        )
