@@ -28,8 +28,8 @@ class GateBot:
         self.db_sessionmaker = self._init_db_sessionmaker()
 
     def _init_updater(self) -> Updater:
-        if self.config.PROXY:
-            request = Request(con_pool_size=8, proxy_url=self.config.PROXY)
+        if self.config.PROXY_URL:
+            request = Request(con_pool_size=8, proxy_url=self.config.PROXY_URL)
             bot = Bot(self.config.BOT_TOKEN, request=request)
         else:
             bot = Bot(self.config.BOT_TOKEN)
