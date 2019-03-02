@@ -130,14 +130,14 @@ class TestStories:
             ]
         )
         self.assert_callback_query_answered(bot, 124)
-        self.assert_question_displayed(
+        self.assert_already_started_sent(bot, 11)
+
+        bot = self.play_user_sends_command(
             gatebot,
-            bot,
-            message_id=126,
+            "start",
             user_id=11,
-            question=QUESTION_1,
-            pos=1,
         )
+        self.assert_already_started_sent(bot, 11)
 
     def test_navigation(self, gatebot: GateBot):
         bot = self.play_user_sends_callback_query(
@@ -269,7 +269,7 @@ class TestStories:
                 gatebot: GateBot,
                 command: str,
                 user_id: int,
-                first_name: str,
+                first_name: str = None,
             ) -> NonCallableMagicMock:
         bot = NonCallableMagicMock(spec=Bot)
 
@@ -380,6 +380,22 @@ class TestStories:
         button = buttons[0]
         assert button.text == "Start the quiz"
         assert button.callback_data == "start_quiz"
+
+    def assert_already_started_sent(
+                self,
+                bot: NonCallableMagicMock,
+                user_id: int,
+            ):
+        calls = bot.send_message.call_args_list
+        assert len(calls) == 1
+
+        text = "You have already started the quiz."
+
+        args, kwargs = calls[0]
+        assert kwargs['chat_id'] == user_id
+        assert text in kwargs['text']
+        assert kwargs['parse_mode'] == "HTML"
+        assert 'reply_markup' not in kwargs
 
     def assert_callback_query_answered(
                 self,

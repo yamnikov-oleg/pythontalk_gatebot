@@ -105,6 +105,16 @@ class GateBot:
             update.message.from_user.first_name,
             update.message.from_user.id)
 
+        with self.db_session() as session:
+            quizpass = get_active_quizpass(
+                session, update.message.from_user.id)
+            if quizpass:
+                bot.send_message(
+                    chat_id=update.message.from_user.id,
+                    text="You have already started the quiz.",
+                    parse_mode="HTML")
+                return
+
         bot.send_message(
             chat_id=update.message.chat.id,
             text=messages.GETTING_STARTED.format(
@@ -152,9 +162,15 @@ class GateBot:
         with self.db_session() as session:
             quizpass = get_active_quizpass(
                 session, update.callback_query.from_user.id)
-            if not quizpass:
-                quizpass = self._generate_quizpass(
-                    session, update.callback_query.from_user.id)
+            if quizpass:
+                bot.send_message(
+                    chat_id=update.callback_query.from_user.id,
+                    text="You have already started the quiz.",
+                    parse_mode="HTML")
+                return
+
+            quizpass = self._generate_quizpass(
+                session, update.callback_query.from_user.id)
             self._display_quizpass(
                 bot,
                 update.callback_query.message.message_id,
