@@ -91,6 +91,7 @@ class TestStories:
             message_id=125,
             user_id=11,
             question=QUESTION_1,
+            pos=1,
         )
 
     def test_user_starts_quiz_twice(self, gatebot: GateBot):
@@ -113,6 +114,7 @@ class TestStories:
             message_id=125,
             user_id=11,
             question=QUESTION_1,
+            pos=1,
         )
 
         bot = self.play_user_sends_callback_query(
@@ -134,6 +136,115 @@ class TestStories:
             message_id=126,
             user_id=11,
             question=QUESTION_1,
+            pos=1,
+        )
+
+    def test_navigation(self, gatebot: GateBot):
+        bot = self.play_user_sends_callback_query(
+            gatebot,
+            id=124,
+            data="start_quiz",
+            user_id=11,
+            message_id=125,
+            generate_questions=[
+                QUESTION_1,
+                QUESTION_2,
+                QUESTION_3,
+            ]
+        )
+        self.assert_callback_query_answered(bot, 124)
+        self.assert_question_displayed(
+            gatebot,
+            bot,
+            message_id=125,
+            user_id=11,
+            question=QUESTION_1,
+            pos=1,
+        )
+
+        bot = self.play_user_sends_callback_query(
+            gatebot,
+            id=125,
+            data="next",
+            user_id=11,
+            message_id=125,
+        )
+        self.assert_callback_query_answered(bot, 125)
+        self.assert_question_displayed(
+            gatebot,
+            bot,
+            message_id=125,
+            user_id=11,
+            question=QUESTION_2,
+            pos=2,
+        )
+
+        bot = self.play_user_sends_callback_query(
+            gatebot,
+            id=125,
+            data="next",
+            user_id=11,
+            message_id=125,
+        )
+        self.assert_callback_query_answered(bot, 125)
+        self.assert_question_displayed(
+            gatebot,
+            bot,
+            message_id=125,
+            user_id=11,
+            question=QUESTION_3,
+            pos=3,
+        )
+
+        bot = self.play_user_sends_callback_query(
+            gatebot,
+            id=125,
+            data="next",
+            user_id=11,
+            message_id=125,
+        )
+        self.assert_callback_query_answered(bot, 125)
+        self.assert_question_displayed(
+            gatebot,
+            bot,
+            message_id=125,
+            user_id=11,
+            question=QUESTION_1,
+            pos=1,
+        )
+
+        bot = self.play_user_sends_callback_query(
+            gatebot,
+            id=125,
+            data="prev",
+            user_id=11,
+            message_id=125,
+        )
+        self.assert_callback_query_answered(bot, 125)
+        self.assert_question_displayed(
+            gatebot,
+            bot,
+            message_id=125,
+            user_id=11,
+            question=QUESTION_3,
+            pos=3,
+        )
+
+        bot = self.play_user_sends_callback_query(
+            gatebot,
+            id=125,
+            data="prev",
+            user_id=11,
+            message_id=125,
+        )
+        self.assert_callback_query_answered(bot, 125)
+        self.assert_question_displayed(
+            gatebot,
+            bot,
+            message_id=125,
+            user_id=11,
+            question=QUESTION_2,
+            pos=2,
         )
 
     # Play methods
@@ -287,6 +398,7 @@ class TestStories:
                 message_id: int,
                 user_id: int,
                 question: Question,
+                pos: int,
             ):
         calls = bot.edit_message_text.call_args_list
         assert len(calls) == 1
@@ -298,3 +410,20 @@ class TestStories:
         for ix, opt in enumerate(question.options):
             assert f"{ix}. {opt}" in kwargs['text']
         assert kwargs['parse_mode'] == "HTML"
+
+        button_rows = kwargs['reply_markup'].inline_keyboard
+
+        nav_buttons = button_rows[0]
+        assert len(nav_buttons) == 3
+
+        back_button = nav_buttons[0]
+        assert back_button.text == "<"
+        assert back_button.callback_data == "prev"
+
+        pos_button = nav_buttons[1]
+        assert pos_button.text == f"{pos}/{gatebot.config.QUESTIONS_PER_QUIZ}"
+        assert pos_button.callback_data == "ignore"
+
+        next_button = nav_buttons[2]
+        assert next_button.text == ">"
+        assert next_button.callback_data == "next"

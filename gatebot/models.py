@@ -37,6 +37,16 @@ class QuizPass(Base):
                 return item
         raise ValueError(f"Item index out of range: {self.current_item_index}")
 
+    def move_to_next(self):
+        self.current_item_index += 1
+        if self.current_item_index >= len(self.quizitems):
+            self.current_item_index = 0
+
+    def move_to_prev(self):
+        self.current_item_index -= 1
+        if self.current_item_index < 0:
+            self.current_item_index = len(self.quizitems) - 1
+
 
 class QuizItem(Base):
     __tablename__ = 'quizitem'

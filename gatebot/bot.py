@@ -120,10 +120,28 @@ class GateBot:
         )
 
     def callback_query(self, bot: Bot, update: Update) -> None:
-        if update.callback_query.data == "start_quiz":
+        if update.callback_query.data == "ignore":
+            self.callback_query_ignore(bot, update)
+        elif update.callback_query.data == "start_quiz":
             self.callback_query_start_quiz(bot, update)
+        elif update.callback_query.data == "next":
+            self.callback_query_next(bot, update)
+        elif update.callback_query.data == "prev":
+            self.callback_query_prev(bot, update)
         else:
             self.callback_query_unknown(bot, update)
+
+    def callback_query_unknown(self, bot: Bot, update: Update) -> None:
+        self.logger.info(
+            "Unknown callback query: %s", update.callback_query.data)
+        bot.answer_callback_query(
+            callback_query_id=update.callback_query.id,
+        )
+
+    def callback_query_ignore(self, bot: Bot, update: Update) -> None:
+        bot.answer_callback_query(
+            callback_query_id=update.callback_query.id,
+        )
 
     def callback_query_start_quiz(self, bot: Bot, update: Update) -> None:
         self.logger.info("Callback query: start_quiz")
@@ -144,12 +162,43 @@ class GateBot:
                 quizpass,
             )
 
-    def callback_query_unknown(self, bot: Bot, update: Update) -> None:
-        self.logger.info(
-            "Unknown callback query: %s", update.callback_query.data)
+    def callback_query_next(self, bot: Bot, update: Update) -> None:
+        self.logger.info("Callback query: next")
         bot.answer_callback_query(
             callback_query_id=update.callback_query.id,
         )
+
+        with self.db_session() as session:
+            quizpass = get_active_quizpass(
+                session, update.callback_query.from_user.id)
+            quizpass.move_to_next()
+            session.commit()
+
+            self._display_quizpass(
+                bot,
+                update.callback_query.message.message_id,
+                update.callback_query.from_user.id,
+                quizpass,
+            )
+
+    def callback_query_prev(self, bot: Bot, update: Update) -> None:
+        self.logger.info("Callback query: prev")
+        bot.answer_callback_query(
+            callback_query_id=update.callback_query.id,
+        )
+
+        with self.db_session() as session:
+            quizpass = get_active_quizpass(
+                session, update.callback_query.from_user.id)
+            quizpass.move_to_prev()
+            session.commit()
+
+            self._display_quizpass(
+                bot,
+                update.callback_query.message.message_id,
+                update.callback_query.from_user.id,
+                quizpass,
+            )
 
     def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
         questions = random.sample(
@@ -181,4 +230,14 @@ class GateBot:
             message_id=message_id,
             text=text,
             parse_mode="HTML",
+            reply_markup=InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("<", callback_data="prev"),
+                    InlineKeyboardButton(
+                        f"{item.index + 1}/{self.config.QUESTIONS_PER_QUIZ}",
+                        callback_data="ignore",
+                    ),
+                    InlineKeyboardButton(">", callback_data="next"),
+                ],
+            ]),
         )
