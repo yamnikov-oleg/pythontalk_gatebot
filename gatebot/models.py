@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import Column, Integer, DateTime, func, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base
@@ -111,3 +111,7 @@ def create_quizpass(
             session.commit()
 
     return quizpass
+
+
+def get_active_quizpass(session: Session, user_id: int) -> Optional[QuizPass]:
+    return session.query(QuizPass).filter(QuizPass.user_id == user_id).first()

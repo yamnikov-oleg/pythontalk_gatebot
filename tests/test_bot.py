@@ -93,6 +93,49 @@ class TestStories:
             question=QUESTION_1,
         )
 
+    def test_user_starts_quiz_twice(self, gatebot: GateBot):
+        bot = self.play_user_sends_callback_query(
+            gatebot,
+            id=124,
+            data="start_quiz",
+            user_id=11,
+            message_id=125,
+            generate_questions=[
+                QUESTION_1,
+                QUESTION_2,
+                QUESTION_3,
+            ]
+        )
+        self.assert_callback_query_answered(bot, 124)
+        self.assert_question_displayed(
+            gatebot,
+            bot,
+            message_id=125,
+            user_id=11,
+            question=QUESTION_1,
+        )
+
+        bot = self.play_user_sends_callback_query(
+            gatebot,
+            id=124,
+            data="start_quiz",
+            user_id=11,
+            message_id=126,
+            generate_questions=[
+                QUESTION_3,
+                QUESTION_2,
+                QUESTION_1,
+            ]
+        )
+        self.assert_callback_query_answered(bot, 124)
+        self.assert_question_displayed(
+            gatebot,
+            bot,
+            message_id=126,
+            user_id=11,
+            question=QUESTION_1,
+        )
+
     # Play methods
 
     def play_user_joins_group(

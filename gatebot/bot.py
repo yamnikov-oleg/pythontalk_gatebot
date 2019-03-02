@@ -13,7 +13,7 @@ from telegram.utils.request import Request
 from config.base import BaseConfig
 
 from . import messages
-from .models import init_models, create_quizpass, QuizPass
+from .models import init_models, create_quizpass, get_active_quizpass, QuizPass
 from .questions import load_question
 
 
@@ -132,8 +132,11 @@ class GateBot:
         )
 
         with self.db_session() as session:
-            quizpass = self._generate_quizpass(
+            quizpass = get_active_quizpass(
                 session, update.callback_query.from_user.id)
+            if not quizpass:
+                quizpass = self._generate_quizpass(
+                    session, update.callback_query.from_user.id)
             self._display_quizpass(
                 bot,
                 update.callback_query.message.message_id,
