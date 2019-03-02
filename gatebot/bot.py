@@ -5,7 +5,8 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
+from telegram.ext import (Updater, MessageHandler, CommandHandler, Filters,
+                          CallbackQueryHandler)
 from telegram.update import Update
 from telegram.utils.request import Request
 
@@ -52,6 +53,7 @@ class GateBot:
             MessageHandler(
                 Filters.status_update.new_chat_members,
                 self.new_chat_members))
+        dispatcher.add_handler(CallbackQueryHandler(self.callback_query))
         dispatcher.add_handler(CommandHandler('start', self.command_start))
 
         return updater
@@ -93,13 +95,6 @@ class GateBot:
                 can_add_web_page_previews=False,
             )
 
-    def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
-        questions = random.sample(
-            self.questions,
-            self.config.QUESTIONS_PER_QUIZ,
-        )
-        return create_quizpass(session, user_id, questions)
-
     def command_start(self, bot: Bot, update: Update) -> None:
         if update.message.chat.id != update.message.from_user.id:
             # Ignore commands sent not in pm
@@ -122,4 +117,65 @@ class GateBot:
                 InlineKeyboardButton(
                     "Start the quiz", callback_data="start_quiz"),
             ]]),
+        )
+
+    def callback_query(self, bot: Bot, update: Update) -> None:
+        if update.callback_query.data == "start_quiz":
+            self.callback_query_start_quiz(bot, update)
+        else:
+            self.callback_query_unknown(bot, update)
+
+    def callback_query_start_quiz(self, bot: Bot, update: Update) -> None:
+        self.logger.info("Callback query: start_quiz")
+        bot.answer_callback_query(
+            callback_query_id=update.callback_query.id,
+        )
+
+        with self.db_session() as session:
+            quizpass = self._generate_quizpass(
+                session, update.callback_query.from_user.id)
+            self._display_quizpass(
+                bot,
+                update.callback_query.message.message_id,
+                update.callback_query.from_user.id,
+                quizpass,
+            )
+
+    def callback_query_unknown(self, bot: Bot, update: Update) -> None:
+        self.logger.info(
+            "Unknown callback query: %s", update.callback_query.data)
+        bot.answer_callback_query(
+            callback_query_id=update.callback_query.id,
+        )
+
+    def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
+        questions = random.sample(
+            self.questions,
+            self.config.QUESTIONS_PER_QUIZ,
+        )
+        return create_quizpass(
+            session,
+            user_id,
+            questions,
+            self.config.CORRECT_ANSWERS_REQUIRED,
+        )
+
+    def _display_quizpass(
+                self,
+                bot: Bot,
+                message_id: int,
+                user_id: int,
+                quizpass: QuizPass,
+            ) -> None:
+        item = quizpass.current_item
+        text = f"{item.text}\n\n"
+        for option in item.options:
+            text += f"{option.index}. {option.text}\n"
+        text = text.strip()
+
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=message_id,
+            text=text,
+            parse_mode="HTML",
         )

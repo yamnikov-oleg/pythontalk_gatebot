@@ -20,9 +20,22 @@ class QuizPass(Base):
 
     # Telegram user id
     user_id = Column(Integer, index=True, nullable=False)
-
+    correct_required = Column(Integer, nullable=False)
+    current_item_index = Column(Integer, nullable=False, server_default='0')
     created_at = Column(
         DateTime(timezone=True), default=func.now(), nullable=False)
+
+    quizitems = relationship(
+        'QuizItem',
+        order_by='QuizItem.index',
+        back_populates='quizpass')
+
+    @property
+    def current_item(self) -> 'QuizItem':
+        for item in self.quizitems:
+            if item.index == self.current_item_index:
+                return item
+        raise ValueError(f"Item index out of range: {self.current_item_index}")
 
 
 class QuizItem(Base):
@@ -33,11 +46,16 @@ class QuizItem(Base):
     quizpass_id = Column(Integer, ForeignKey('quizpass.id'), nullable=False)
     quizpass = relationship(
         'QuizPass',
-        foreign_keys='QuizItem.quizpass_id',
-        backref='quizitems')
+        back_populates='quizitems')
 
+    index = Column(Integer, nullable=False)
     text = Column(Text, nullable=False)
     correct_answer = Column(Integer, nullable=False)
+
+    options = relationship(
+        'Option',
+        order_by='Option.index',
+        back_populates='quizitem')
 
 
 class Option(Base):
@@ -47,7 +65,8 @@ class Option(Base):
 
     quizitem_id = Column(Integer, ForeignKey('quizitem.id'), nullable=False)
     quizitem = relationship(
-        'QuizItem', foreign_keys='Option.quizitem_id', backref='options')
+        'QuizItem',
+        back_populates='options')
 
     index = Column(Integer, nullable=False)
     text = Column(Text, nullable=False)
@@ -63,14 +82,19 @@ def create_quizpass(
             session: Session,
             user_id: int,
             questions: List[Question],
+            correct_required: int,
         ) -> QuizPass:
-    quizpass = QuizPass(user_id=user_id)
+    quizpass = QuizPass(
+        user_id=user_id,
+        correct_required=correct_required,
+    )
     session.add(quizpass)
     session.commit()
 
-    for question in questions:
+    for q_ix, question in enumerate(questions):
         item = QuizItem(
             quizpass_id=quizpass.id,
+            index=q_ix,
             text=question.text,
             correct_answer=question.answer,
         )

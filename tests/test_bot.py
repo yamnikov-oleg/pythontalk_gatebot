@@ -1,4 +1,5 @@
-from unittest.mock import NonCallableMagicMock
+from typing import Optional, List
+from unittest.mock import NonCallableMagicMock, patch
 
 from telegram import Bot
 from pytest import fixture
@@ -6,6 +7,41 @@ from pytest import fixture
 from config import TestConfig
 from gatebot.bot import GateBot
 from gatebot.models import Base
+from gatebot.questions import Question
+
+
+QUESTION_1 = Question(
+    text="Test question #1",
+    options=[
+        "Test option 1.1",
+        "Test option 1.2",
+        "Test option 1.3",
+    ],
+    answer=0,
+)
+
+QUESTION_2 = Question(
+    text="Test question #2",
+    options=[
+        "Test option 2.1",
+        "Test option 2.2",
+        "Test option 2.3",
+        "Test option 2.4",
+    ],
+    answer=3,
+)
+
+QUESTION_3 = Question(
+    text="Test question #3",
+    options=[
+        "Test option 3.1",
+        "Test option 3.2",
+        "Test option 3.3",
+        "Test option 3.4",
+        "Test option 3.5",
+    ],
+    answer=1,
+)
 
 
 @fixture
@@ -24,7 +60,7 @@ class TestStories:
         bot = self.play_user_joins_group(gatebot, user_id=111)
         self.assert_user_restricted(gatebot, bot, user_id=111)
 
-    def test_user_starts_quiz(self, gatebot: GateBot):
+    def test_user_sends_start(self, gatebot: GateBot):
         bot = self.play_user_sends_command(
             gatebot, "start", user_id=111, first_name="TestUser8")
         self.assert_getting_started_sent(
@@ -34,6 +70,28 @@ class TestStories:
         bot = self.play_user_sends_command_in_group(
             gatebot, "start", user_id=111, first_name="TestUser8")
         self.assert_no_api_calls(bot)
+
+    def test_user_starts_quiz(self, gatebot: GateBot):
+        bot = self.play_user_sends_callback_query(
+            gatebot,
+            id=124,
+            data="start_quiz",
+            user_id=11,
+            message_id=125,
+            generate_questions=[
+                QUESTION_1,
+                QUESTION_2,
+                QUESTION_3,
+            ]
+        )
+        self.assert_callback_query_answered(bot, 124)
+        self.assert_question_displayed(
+            gatebot,
+            bot,
+            message_id=125,
+            user_id=11,
+            question=QUESTION_1,
+        )
 
     # Play methods
 
@@ -90,6 +148,32 @@ class TestStories:
 
         return bot
 
+    def play_user_sends_callback_query(
+                self,
+                gatebot: GateBot,
+                id: int,
+                data: str,
+                user_id: int,
+                message_id: int,
+                generate_questions: Optional[List[Question]] = None,
+            ) -> NonCallableMagicMock:
+        bot = NonCallableMagicMock(spec=Bot)
+
+        update = NonCallableMagicMock()
+        update.callback_query.id = id
+        update.callback_query.data = data
+        update.callback_query.from_user.id = user_id
+        update.callback_query.message.chat.id = user_id
+        update.callback_query.message.message_id = message_id
+
+        if generate_questions:
+            with patch('random.sample', return_value=generate_questions):
+                gatebot.callback_query(bot, update)
+        else:
+            gatebot.callback_query(bot, update)
+
+        return bot
+
     # Assert methods
 
     def assert_no_api_calls(self, bot: NonCallableMagicMock):
@@ -142,3 +226,32 @@ class TestStories:
         button = buttons[0]
         assert button.text == "Start the quiz"
         assert button.callback_data == "start_quiz"
+
+    def assert_callback_query_answered(
+                self,
+                bot: NonCallableMagicMock,
+                id: int,
+            ) -> None:
+        calls = bot.answer_callback_query.call_args_list
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert kwargs['callback_query_id'] == id
+
+    def assert_question_displayed(
+                self,
+                gatebot: GateBot,
+                bot: NonCallableMagicMock,
+                message_id: int,
+                user_id: int,
+                question: Question,
+            ):
+        calls = bot.edit_message_text.call_args_list
+        assert len(calls) == 1
+
+        args, kwargs = calls[0]
+        assert kwargs['chat_id'] == user_id
+        assert kwargs['message_id'] == message_id
+        assert question.text in kwargs['text']
+        for ix, opt in enumerate(question.options):
+            assert f"{ix}. {opt}" in kwargs['text']
+        assert kwargs['parse_mode'] == "HTML"
