@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from sqlalchemy_utc import UtcDateTime
@@ -61,11 +62,28 @@ class QuizItem(Base):
     index = Column(Integer, nullable=False)
     text = Column(Text, nullable=False)
     correct_answer = Column(Integer, nullable=False)
+    given_answer = Column(Integer)
+    answered_at = Column(UtcDateTime)
 
     options = relationship(
         'Option',
         order_by='Option.index',
         back_populates='quizitem')
+
+    def set_answer(self, answer: int):
+        if answer < 0 or answer >= len(self.options):
+            raise ValueError(f"Answer out of range: {answer}")
+
+        self.given_answer = answer
+        self.answered_at = datetime.utcnow().replace(tzinfo=timezone.utc)
+
+    @property
+    def is_answered(self) -> bool:
+        return self.given_answer is not None and self.answered_at
+
+    @property
+    def is_answered_correctly(self) -> bool:
+        return self.is_answered and self.correct_answer == self.given_answer
 
 
 class Option(Base):

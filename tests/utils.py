@@ -169,7 +169,11 @@ class UserSession:
                 message_id: int,
                 question: Question,
                 pos: int,
+                answered: Optional[str] = None,
             ):
+        if answered not in [None, 'correct', 'wrong']:
+            raise ValueError(f"Invalid value of answered: {answered!r}")
+
         calls = self.last_bot_mock.edit_message_text.call_args_list
         assert len(calls) == 1
 
@@ -181,9 +185,27 @@ class UserSession:
             assert f"{ix}. {opt}" in kwargs['text']
         assert kwargs['parse_mode'] == "HTML"
 
+        if answered is None:
+            assert 'Correct' not in kwargs['text']
+            assert 'Wrong' not in kwargs['text']
+        elif answered == 'correct':
+            assert 'Correct' in kwargs['text']
+        elif answered == 'wrong':
+            assert 'Wrong' in kwargs['text']
+
         button_rows = kwargs['reply_markup'].inline_keyboard
 
-        nav_buttons = button_rows[0]
+        if answered is None:
+            ans_buttons, nav_buttons = button_rows
+        else:
+            nav_buttons, = button_rows
+
+        if answered is None:
+            assert len(ans_buttons) == len(question.options)
+            for ix in range(len(question.options)):
+                assert ans_buttons[ix].text == str(ix)
+                assert ans_buttons[ix].callback_data == f"answer_{ix}"
+
         assert len(nav_buttons) == 3
 
         back_button = nav_buttons[0]

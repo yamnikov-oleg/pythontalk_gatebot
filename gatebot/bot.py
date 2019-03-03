@@ -1,5 +1,6 @@
 import logging
 import random
+import re
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
@@ -130,6 +131,9 @@ class GateBot:
         )
 
     def callback_query(self, bot: Bot, update: Update) -> None:
+        answer_re = re.compile(r'^answer_(\d+)$')
+        answer_match = answer_re.match(update.callback_query.data)
+
         if update.callback_query.data == "ignore":
             self.callback_query_ignore(bot, update)
         elif update.callback_query.data == "start_quiz":
@@ -138,6 +142,8 @@ class GateBot:
             self.callback_query_next(bot, update)
         elif update.callback_query.data == "prev":
             self.callback_query_prev(bot, update)
+        elif answer_match:
+            self.callback_query_answer(bot, update, int(answer_match.group(1)))
         else:
             self.callback_query_unknown(bot, update)
 
@@ -216,6 +222,26 @@ class GateBot:
                 quizpass,
             )
 
+    def callback_query_answer(
+            self, bot: Bot, update: Update, answer: int) -> None:
+        self.logger.info(f"Callback query: answer {answer}")
+        bot.answer_callback_query(
+            callback_query_id=update.callback_query.id,
+        )
+
+        with self.db_session() as session:
+            quizpass = get_active_quizpass(
+                session, update.callback_query.from_user.id)
+            quizpass.current_item.set_answer(answer)
+            session.commit()
+
+            self._display_quizpass(
+                bot,
+                update.callback_query.message.message_id,
+                update.callback_query.from_user.id,
+                quizpass,
+            )
+
     def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
         questions = random.sample(
             self.questions,
@@ -239,21 +265,45 @@ class GateBot:
         text = f"{item.text}\n\n"
         for option in item.options:
             text += f"{option.index}. {option.text}\n"
+
+        if item.is_answered:
+            text += "\n"
+            if item.is_answered_correctly:
+                text += "Correct.\n"
+            else:
+                text += "Wrong.\n"
+
         text = text.strip()
+
+        ans_buttons = []
+        for ix in range(len(item.options)):
+            ans_buttons.append(InlineKeyboardButton(
+                str(ix), callback_data=f"answer_{ix}",
+            ))
+
+        nav_buttons = [
+            InlineKeyboardButton("<", callback_data="prev"),
+            InlineKeyboardButton(
+                f"{item.index + 1}/{self.config.QUESTIONS_PER_QUIZ}",
+                callback_data="ignore",
+            ),
+            InlineKeyboardButton(">", callback_data="next"),
+        ]
+
+        if item.is_answered:
+            keyboard = InlineKeyboardMarkup([
+                nav_buttons,
+            ])
+        else:
+            keyboard = InlineKeyboardMarkup([
+                ans_buttons,
+                nav_buttons,
+            ])
 
         bot.edit_message_text(
             chat_id=user_id,
             message_id=message_id,
             text=text,
             parse_mode="HTML",
-            reply_markup=InlineKeyboardMarkup([
-                [
-                    InlineKeyboardButton("<", callback_data="prev"),
-                    InlineKeyboardButton(
-                        f"{item.index + 1}/{self.config.QUESTIONS_PER_QUIZ}",
-                        callback_data="ignore",
-                    ),
-                    InlineKeyboardButton(">", callback_data="next"),
-                ],
-            ]),
+            reply_markup=keyboard,
         )

@@ -1,7 +1,3 @@
-from typing import Optional, List
-from unittest.mock import NonCallableMagicMock, patch
-
-from telegram import Bot
 from pytest import fixture
 
 from config import TestConfig
@@ -126,3 +122,28 @@ class TestStories:
 
         session.play_sends_callback_query(1, "prev")
         session.assert_question_displayed(1, QUESTION_2, pos=2)
+
+    def test_answering_questions(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        session.play_sends_callback_query(1, "start_quiz")
+        session.assert_question_displayed(1, QUESTION_1, pos=1)
+
+        session.play_sends_callback_query(1, "answer_0")
+        session.assert_question_displayed(
+            1, QUESTION_1, pos=1, answered='correct')
+
+        session.play_sends_callback_query(1, "next")
+        session.assert_question_displayed(1, QUESTION_2, pos=2)
+
+        session.play_sends_callback_query(1, "answer_2")
+        session.assert_question_displayed(
+            1, QUESTION_2, pos=2, answered='wrong')
+
+        session.play_sends_callback_query(1, "prev")
+        session.assert_question_displayed(
+            1, QUESTION_1, pos=1, answered='correct')
