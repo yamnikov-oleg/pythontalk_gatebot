@@ -1,6 +1,7 @@
 from typing import List, Optional
 
-from sqlalchemy import Column, Integer, DateTime, func, ForeignKey, Text
+from sqlalchemy_utc import UtcDateTime
+from sqlalchemy import func, Column, Integer, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, relationship
 
@@ -22,8 +23,7 @@ class QuizPass(Base):
     user_id = Column(Integer, index=True, nullable=False)
     correct_required = Column(Integer, nullable=False)
     current_item_index = Column(Integer, nullable=False, server_default='0')
-    created_at = Column(
-        DateTime(timezone=True), default=func.now(), nullable=False)
+    created_at = Column(UtcDateTime, default=func.now(), nullable=False)
 
     quizitems = relationship(
         'QuizItem',
