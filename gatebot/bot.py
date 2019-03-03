@@ -128,7 +128,6 @@ class GateBot:
         bot.send_message(
             chat_id=update.message.chat.id,
             text=messages.GETTING_STARTED.format(
-                first_name=update.message.from_user.first_name,
                 questions_total=self.config.QUESTIONS_PER_QUIZ,
                 answers_required=self.config.CORRECT_ANSWERS_REQUIRED,
             ),

@@ -20,12 +20,10 @@ class UserSession:
     def __init__(
                 self,
                 gatebot: GateBot,
-                first_name: str = 'TestUser',
                 force_questions: Optional[List[Question]] = None,
             ):
         self.gatebot = gatebot
         self.user_id = generate_id()
-        self.first_name = first_name
         self.force_questions = force_questions
 
         self.last_bot_mock = None
@@ -66,7 +64,6 @@ class UserSession:
         update = NonCallableMagicMock()
         update.message.chat.id = self.user_id
         update.message.from_user.id = self.user_id
-        update.message.from_user.first_name = self.first_name
 
         method = getattr(self.gatebot, f'command_{command}')
         with self._gatebot_env():
@@ -78,7 +75,6 @@ class UserSession:
         update = NonCallableMagicMock()
         update.message.chat.id = self.gatebot.config.GROUP_ID
         update.message.from_user.id = self.user_id
-        update.message.from_user.first_name = self.first_name
 
         method = getattr(self.gatebot, f'command_{command}')
         with self._gatebot_env():
@@ -145,7 +141,7 @@ class UserSession:
         qs = self.gatebot.config.QUESTIONS_PER_QUIZ
         ans = self.gatebot.config.CORRECT_ANSWERS_REQUIRED
         welcome_text = (
-            f"Hello {self.first_name}!\n"
+            f"Hello fellow pythonista!\n"
             f"You're going to be presented with {qs} randomly picked "
             "questions about Python. To pass the test and be able to chat "
             f"you'll have to answer correctly {ans} of them.\n"
