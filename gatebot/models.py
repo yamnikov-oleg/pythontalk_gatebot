@@ -48,6 +48,22 @@ class QuizPass(Base):
         if self.current_item_index < 0:
             self.current_item_index = len(self.quizitems) - 1
 
+    @property
+    def is_finished(self) -> bool:
+        return all(item.is_answered for item in self.quizitems)
+
+    @property
+    def correct_given(self) -> int:
+        return len([
+            item
+            for item in self.quizitems
+            if item.is_answered_correctly
+        ])
+
+    @property
+    def has_passed(self) -> bool:
+        return self.correct_given >= self.correct_required
+
 
 class QuizItem(Base):
     __tablename__ = 'quizitem'
@@ -142,4 +158,13 @@ def create_quizpass(
 
 
 def get_active_quizpass(session: Session, user_id: int) -> Optional[QuizPass]:
-    return session.query(QuizPass).filter(QuizPass.user_id == user_id).first()
+    return session.query(QuizPass)\
+        .filter(QuizPass.user_id == user_id)\
+        .one_or_none()
+
+
+def get_last_quizpass(session: Session, user_id: int) -> Optional[QuizPass]:
+    return session.query(QuizPass)\
+        .filter(QuizPass.user_id == user_id)\
+        .order_by(QuizPass.created_at.desc())\
+        .first()

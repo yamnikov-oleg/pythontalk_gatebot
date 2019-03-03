@@ -147,3 +147,52 @@ class TestStories:
         session.play_sends_callback_query(1, "prev")
         session.assert_question_displayed(
             1, QUESTION_1, pos=1, answered='correct')
+
+    def test_joins_and_passes(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        session.play_joins_group()
+        session.play_sends_callback_query(1, "start_quiz")
+        session.play_sends_callback_query(1, "answer_0")  # Correct
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_3")  # Correct
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_2")  # Wrong
+        session.assert_sent_passed(result=2)
+        session.assert_was_unrestricted()
+
+    def test_passes_and_joins(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        session.play_sends_callback_query(1, "start_quiz")
+        session.play_sends_callback_query(1, "answer_0")  # Correct
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_3")  # Correct
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_1")  # Correct
+        session.assert_sent_passed(result=3)
+        session.assert_was_unrestricted()
+
+        session.play_joins_group()
+        session.assert_no_restriction_api_calls()
+
+    def test_starts_quiz_and_joins(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        session.play_sends_callback_query(1, "start_quiz")
+        session.play_sends_callback_query(1, "answer_0")  # Correct
+
+        session.play_joins_group()
+        session.assert_was_restricted()

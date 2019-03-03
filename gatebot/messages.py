@@ -5,3 +5,7 @@ GETTING_STARTED = (
     "you'll have to answer correctly {answers_required} of them.\n"
     "When you're ready, press 'Start the quiz'.\n"
     "Good luck!")
+
+PASSED = (
+    "You have passed the quiz with the result of {result}/{total}.\n"
+    "You can now chat in the group.")

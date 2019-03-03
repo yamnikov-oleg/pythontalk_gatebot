@@ -115,6 +115,9 @@ class UserSession:
     def assert_no_api_calls(self):
         assert len(self.last_bot_mock.method_calls) == 0
 
+    def assert_no_restriction_api_calls(self):
+        assert len(self.last_bot_mock.restrict_chat_member.call_args_list) == 0
+
     def assert_was_restricted(self):
         self.last_bot_mock.restrict_chat_member.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
@@ -123,6 +126,16 @@ class UserSession:
             can_send_media_messages=False,
             can_send_other_messages=False,
             can_add_web_page_previews=False,
+        )
+
+    def assert_was_unrestricted(self):
+        self.last_bot_mock.restrict_chat_member.assert_called_once_with(
+            chat_id=self.gatebot.config.GROUP_ID,
+            user_id=self.user_id,
+            can_send_message=True,
+            can_send_media_messages=True,
+            can_send_other_messages=True,
+            can_add_web_page_previews=True,
         )
 
     def assert_sent_getting_started(self):
@@ -157,6 +170,21 @@ class UserSession:
         assert len(calls) == 1
 
         text = "You have already started the quiz."
+
+        args, kwargs = calls[0]
+        assert kwargs['chat_id'] == self.user_id
+        assert text in kwargs['text']
+        assert kwargs['parse_mode'] == "HTML"
+        assert 'reply_markup' not in kwargs
+
+    def assert_sent_passed(self, result: int):
+        calls = self.last_bot_mock.send_message.call_args_list
+        assert len(calls) == 1
+
+        total = self.gatebot.config.QUESTIONS_PER_QUIZ
+        text = (
+            f"You have passed the quiz with the result of {result}/{total}.\n"
+            "You can now chat in the group.")
 
         args, kwargs = calls[0]
         assert kwargs['chat_id'] == self.user_id

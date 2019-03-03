@@ -14,7 +14,8 @@ from telegram.utils.request import Request
 from config.base import BaseConfig
 
 from . import messages
-from .models import init_models, create_quizpass, get_active_quizpass, QuizPass
+from .models import (init_models, create_quizpass, get_active_quizpass,
+                     get_last_quizpass, QuizPass)
 from .questions import load_question
 
 
@@ -84,17 +85,25 @@ class GateBot:
         self.updater.start_polling()
 
     def new_chat_members(self, bot: Bot, update: Update) -> None:
-        for member in update.message.new_chat_members:
-            self.logger.info(
-                "New user %s joined, id: %s", member.first_name, member.id)
-            bot.restrict_chat_member(
-                chat_id=update.message.chat.id,
-                user_id=member.id,
-                can_send_message=False,
-                can_send_media_messages=False,
-                can_send_other_messages=False,
-                can_add_web_page_previews=False,
-            )
+        with self.db_session() as session:
+            for member in update.message.new_chat_members:
+                self.logger.info(
+                    "New user %s joined, id: %s", member.first_name, member.id)
+
+                quizpass = get_last_quizpass(session, member.id)
+                allowed_to_chat = quizpass and \
+                    quizpass.is_finished and \
+                    quizpass.has_passed
+
+                if not allowed_to_chat:
+                    bot.restrict_chat_member(
+                        chat_id=update.message.chat.id,
+                        user_id=member.id,
+                        can_send_message=False,
+                        can_send_media_messages=False,
+                        can_send_other_messages=False,
+                        can_add_web_page_previews=False,
+                    )
 
     def command_start(self, bot: Bot, update: Update) -> None:
         if update.message.chat.id != update.message.from_user.id:
@@ -241,6 +250,24 @@ class GateBot:
                 update.callback_query.from_user.id,
                 quizpass,
             )
+
+            if quizpass.is_finished and quizpass.has_passed:
+                bot.send_message(
+                    chat_id=update.callback_query.from_user.id,
+                    text=messages.PASSED.format(
+                        result=quizpass.correct_given,
+                        total=len(quizpass.quizitems),
+                    ),
+                    parse_mode="HTML",
+                )
+                bot.restrict_chat_member(
+                    chat_id=self.config.GROUP_ID,
+                    user_id=update.callback_query.from_user.id,
+                    can_send_message=True,
+                    can_send_media_messages=True,
+                    can_send_other_messages=True,
+                    can_add_web_page_previews=True,
+                )
 
     def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
         questions = random.sample(
