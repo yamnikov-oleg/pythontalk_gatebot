@@ -1,10 +1,12 @@
 from contextlib import contextmanager
+from datetime import timedelta
 from random import randint
 from typing import Optional, List
 from unittest.mock import NonCallableMagicMock, patch
 
 from telegram import Bot
 
+from gatebot import models
 from gatebot.bot import GateBot
 from gatebot.questions import Question
 
@@ -103,6 +105,25 @@ class UserSession:
         id = self.last_play_data['callback_query_id']
         assert kwargs['callback_query_id'] == id, \
             "Callback query wasn't answered"
+
+    def play_time_passed(self, delta: timedelta):
+        # This method simulates passage of time by substracting given timedelta
+        # from the DateTime fields in the bot's DB.
+        self._reset_stage()
+
+        rewind_fields = {
+            models.QuizPass: ['created_at'],
+            models.QuizItem: ['answered_at'],
+        }
+        with self.gatebot.db_session() as session:
+            for model, fields in rewind_fields.items():
+                for obj in session.query(model):
+                    for field in fields:
+                        value = getattr(obj, field)
+                        if value:
+                            value -= delta
+                            setattr(obj, field, value)
+            session.commit()
 
     #
     # Assert methods

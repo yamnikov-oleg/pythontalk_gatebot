@@ -64,6 +64,16 @@ class QuizPass(Base):
     def has_passed(self) -> bool:
         return self.correct_given >= self.correct_required
 
+    @property
+    def last_answer_at(self) -> Optional[datetime]:
+        answer_times = [
+            item.answered_at
+            for item in self.quizitems
+            if item.answered_at]
+        if answer_times:
+            return max(answer_times)
+        return None
+
 
 class QuizItem(Base):
     __tablename__ = 'quizitem'

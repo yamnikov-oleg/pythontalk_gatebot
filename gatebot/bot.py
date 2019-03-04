@@ -2,6 +2,7 @@ import logging
 import random
 import re
 from contextlib import contextmanager
+from datetime import datetime, timezone, timedelta
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -116,32 +117,8 @@ class GateBot:
             update.message.from_user.id)
 
         with self.db_session() as session:
-            quizpass = get_active_quizpass(
-                session, update.message.from_user.id)
-            if quizpass:
-                if not quizpass.is_finished:
-                    bot.send_message(
-                        chat_id=update.message.from_user.id,
-                        text="You have already started the quiz.",
-                        parse_mode="HTML")
-                elif quizpass.has_passed:
-                    bot.send_message(
-                        chat_id=update.message.from_user.id,
-                        text=messages.PASSED.format(
-                            result=quizpass.correct_given,
-                            total=len(quizpass.quizitems),
-                        ),
-                        parse_mode="HTML")
-                else:
-                    bot.send_message(
-                        chat_id=update.message.from_user.id,
-                        text=messages.FAILED.format(
-                            result=quizpass.correct_given,
-                            total=len(quizpass.quizitems),
-                            required=quizpass.correct_required,
-                            wait_hours=self.config.WAIT_HOURS_ON_FAIL,
-                        ),
-                        parse_mode="HTML")
+            if not self._on_start_quiz(
+                    session, bot, update.message.from_user.id):
                 return
 
         bot.send_message(
@@ -193,13 +170,8 @@ class GateBot:
         )
 
         with self.db_session() as session:
-            quizpass = get_active_quizpass(
-                session, update.callback_query.from_user.id)
-            if quizpass:
-                bot.send_message(
-                    chat_id=update.callback_query.from_user.id,
-                    text="You have already started the quiz.",
-                    parse_mode="HTML")
+            if not self._on_start_quiz(
+                    session, bot, update.callback_query.from_user.id):
                 return
 
             quizpass = self._generate_quizpass(
@@ -310,6 +282,56 @@ class GateBot:
             questions,
             self.config.CORRECT_ANSWERS_REQUIRED,
         )
+
+    def _on_start_quiz(
+            self, session: Session, bot: Bot, user_id: int) -> bool:
+        """
+        Checks if user can start/restart quiz. If they can, returns True.
+        If they can't sends appropriate message to the user and returns False.
+        """
+        quizpass = get_active_quizpass(session, user_id)
+        if quizpass:
+            if not quizpass.is_finished:
+                # Test is not finished yet.
+                bot.send_message(
+                    chat_id=user_id,
+                    text="You have already started the quiz.",
+                    parse_mode="HTML")
+                return False
+            elif quizpass.has_passed:
+                # User has passed.
+                bot.send_message(
+                    chat_id=user_id,
+                    text=messages.PASSED.format(
+                        result=quizpass.correct_given,
+                        total=len(quizpass.quizitems),
+                    ),
+                    parse_mode="HTML")
+                return False
+            else:
+                now = datetime.utcnow().replace(tzinfo=timezone.utc)
+
+                # Time since last answer
+                time_passed = now - quizpass.last_answer_at
+
+                # Time user has to wait after fail
+                time_has_to_pass = timedelta(
+                    hours=self.config.WAIT_HOURS_ON_FAIL)
+
+                # User failed and hasn't waited enough time.
+                if time_passed < time_has_to_pass:
+                    bot.send_message(
+                        chat_id=user_id,
+                        text=messages.FAILED.format(
+                            result=quizpass.correct_given,
+                            total=len(quizpass.quizitems),
+                            required=quizpass.correct_required,
+                            wait_hours=self.config.WAIT_HOURS_ON_FAIL,
+                        ),
+                        parse_mode="HTML")
+                    return False
+
+        return True
 
     def _display_quizpass(
                 self,

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from pytest import fixture
 
 from config import TestConfig
@@ -245,6 +247,57 @@ class TestStories:
         session.play_sends_callback_query(1, "answer_2")  # Wrong
         session.play_sends_callback_query(1, "next")
         session.play_sends_callback_query(1, "answer_2")  # Wrong
+
+        session.play_sends_command("start")
+        session.assert_sent_failed(result=0)
+
+    def test_fails_and_restarts(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        session.play_sends_callback_query(1, "start_quiz")
+        session.play_sends_callback_query(1, "answer_1")  # Wrong
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_2")  # Wrong
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_2")  # Wrong
+
+        session.force_questions = [
+            QUESTION_3,
+            QUESTION_2,
+            QUESTION_1,
+        ]
+
+        session.play_time_passed(timedelta(hours=73))
+
+        session.play_sends_command("start")
+        session.assert_sent_getting_started()
+
+        session.play_sends_callback_query(2, "start_quiz")
+        session.assert_question_displayed(
+            2, QUESTION_3, pos=1)
+
+    def test_fails_and_restarts_too_soon(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        session.play_sends_callback_query(1, "start_quiz")
+        session.play_sends_callback_query(1, "answer_1")  # Wrong
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_2")  # Wrong
+        session.play_sends_callback_query(1, "next")
+        # Let some time pass before the last answer to make sure user waits
+        # after the last answer not after the quiz was started.
+        session.play_time_passed(timedelta(hours=30))
+        session.play_sends_callback_query(1, "answer_2")  # Wrong
+
+        session.play_time_passed(timedelta(hours=71))
 
         session.play_sends_command("start")
         session.assert_sent_failed(result=0)
