@@ -458,14 +458,6 @@
         "question": "How to get access to <code>__b_</code> in outside of class <code>a</code>?\n\n<code>class a:</code>\n<code>    __b_ = \"hello\"</code>"
     },
     {
-        "answer": 0,
-        "options": [
-            "Vaild Python 2 code.",
-            "Vaild Python 3 code."
-        ],
-        "question": "What is this:\n\n<code>exec((lambda x:x).func_code.__class__(0,0,0,0,\"\u0091\u00030d7\u0013\",(),(),(),\"\",\"\",0,\"\"))</code>"
-    },
-    {
         "answer": 1,
         "options": [
             "<code>-1</code>",
