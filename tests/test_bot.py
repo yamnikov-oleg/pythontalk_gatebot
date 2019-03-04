@@ -150,6 +150,24 @@ class TestStories:
         session.assert_question_displayed(
             1, QUESTION_1, pos=1, answered='correct')
 
+    def test_no_changing_answer(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        session.play_sends_callback_query(1, "start_quiz")
+        session.assert_question_displayed(1, QUESTION_1, pos=1)
+
+        session.play_sends_callback_query(1, "answer_1")
+        session.assert_question_displayed(
+            1, QUESTION_1, pos=1, answered='wrong')
+
+        session.play_sends_callback_query(1, "answer_0")
+        session.assert_question_displayed(
+            1, QUESTION_1, pos=1, answered='wrong')
+
     def test_joins_and_passes(self, gatebot: GateBot):
         session = UserSession(gatebot, force_questions=[
             QUESTION_1,

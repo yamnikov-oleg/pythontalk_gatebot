@@ -232,7 +232,8 @@ class GateBot:
         with self.db_session() as session:
             quizpass = get_active_quizpass(
                 session, update.callback_query.from_user.id)
-            quizpass.current_item.set_answer(answer)
+            if not quizpass.current_item.is_answered:
+                quizpass.current_item.set_answer(answer)
             session.commit()
 
             self._display_quizpass(
