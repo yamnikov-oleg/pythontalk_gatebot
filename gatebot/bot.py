@@ -15,7 +15,7 @@ from config.base import BaseConfig
 
 from . import messages
 from .models import (init_models, create_quizpass, get_active_quizpass,
-                     get_last_quizpass, QuizPass)
+                     QuizPass)
 from .questions import load_question
 
 
@@ -90,7 +90,7 @@ class GateBot:
                 self.logger.info(
                     "New user %s joined, id: %s", member.first_name, member.id)
 
-                quizpass = get_last_quizpass(session, member.id)
+                quizpass = get_active_quizpass(session, member.id)
                 allowed_to_chat = quizpass and \
                     quizpass.is_finished and \
                     quizpass.has_passed
@@ -116,7 +116,8 @@ class GateBot:
             update.message.from_user.id)
 
         with self.db_session() as session:
-            quizpass = get_last_quizpass(session, update.message.from_user.id)
+            quizpass = get_active_quizpass(
+                session, update.message.from_user.id)
             if quizpass:
                 if not quizpass.is_finished:
                     bot.send_message(

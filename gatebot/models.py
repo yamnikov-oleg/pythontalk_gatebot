@@ -160,11 +160,5 @@ def create_quizpass(
 def get_active_quizpass(session: Session, user_id: int) -> Optional[QuizPass]:
     return session.query(QuizPass)\
         .filter(QuizPass.user_id == user_id)\
-        .one_or_none()
-
-
-def get_last_quizpass(session: Session, user_id: int) -> Optional[QuizPass]:
-    return session.query(QuizPass)\
-        .filter(QuizPass.user_id == user_id)\
         .order_by(QuizPass.created_at.desc())\
         .first()
