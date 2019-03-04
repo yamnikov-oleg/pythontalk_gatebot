@@ -116,13 +116,31 @@ class GateBot:
             update.message.from_user.id)
 
         with self.db_session() as session:
-            quizpass = get_active_quizpass(
-                session, update.message.from_user.id)
+            quizpass = get_last_quizpass(session, update.message.from_user.id)
             if quizpass:
-                bot.send_message(
-                    chat_id=update.message.from_user.id,
-                    text="You have already started the quiz.",
-                    parse_mode="HTML")
+                if not quizpass.is_finished:
+                    bot.send_message(
+                        chat_id=update.message.from_user.id,
+                        text="You have already started the quiz.",
+                        parse_mode="HTML")
+                elif quizpass.has_passed:
+                    bot.send_message(
+                        chat_id=update.message.from_user.id,
+                        text=messages.PASSED.format(
+                            result=quizpass.correct_given,
+                            total=len(quizpass.quizitems),
+                        ),
+                        parse_mode="HTML")
+                else:
+                    bot.send_message(
+                        chat_id=update.message.from_user.id,
+                        text=messages.FAILED.format(
+                            result=quizpass.correct_given,
+                            total=len(quizpass.quizitems),
+                            required=quizpass.correct_required,
+                            wait_hours=self.config.WAIT_HOURS_ON_FAIL,
+                        ),
+                        parse_mode="HTML")
                 return
 
         bot.send_message(
@@ -274,7 +292,7 @@ class GateBot:
                         text=messages.FAILED.format(
                             result=quizpass.correct_given,
                             total=len(quizpass.quizitems),
-                            required=self.config.CORRECT_ANSWERS_REQUIRED,
+                            required=quizpass.correct_required,
                             wait_hours=self.config.WAIT_HOURS_ON_FAIL,
                         ),
                         parse_mode="HTML",

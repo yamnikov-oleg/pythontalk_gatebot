@@ -6,10 +6,14 @@ GETTING_STARTED = (
     "When you're ready, press 'Start the quiz'.\n"
     "Good luck!")
 
+# Sent when user passes the quiz and when they attempt to start the quiz again
+# after passing it.
 PASSED = (
     "You have passed the quiz with the result of {result}/{total}.\n"
     "You can now chat in the group.")
 
+# Sent when user fails the quiz and when they attempt to start the quiz again
+# too soon after failing it.
 FAILED = (
     "Unfortunately you have failed with the result of {result}/{total}, "
     "which is not enough to pass ({required}). But no worries, you can try "

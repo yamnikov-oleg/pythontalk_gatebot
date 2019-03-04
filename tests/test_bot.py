@@ -212,3 +212,39 @@ class TestStories:
         session.play_sends_callback_query(1, "answer_1")  # Correct
         session.assert_sent_failed(result=1)
         session.assert_no_restriction_api_calls()
+
+    def test_passes_and_sends_start(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        # Pass the test
+        session.play_sends_callback_query(1, "start_quiz")
+        session.play_sends_callback_query(1, "answer_0")  # Correct
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_3")  # Correct
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_1")  # Correct
+
+        session.play_sends_command("start")
+        session.assert_sent_passed(result=3)
+
+    def test_fails_and_sends_start(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        # Pass the test
+        session.play_sends_callback_query(1, "start_quiz")
+        session.play_sends_callback_query(1, "answer_1")  # Wrong
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_2")  # Wrong
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_2")  # Wrong
+
+        session.play_sends_command("start")
+        session.assert_sent_failed(result=0)
