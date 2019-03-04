@@ -297,7 +297,7 @@ class TestStories:
         session.play_time_passed(timedelta(hours=30))
         session.play_sends_callback_query(1, "answer_2")  # Wrong
 
-        session.play_time_passed(timedelta(hours=71))
+        session.play_time_passed(timedelta(hours=70))
 
         session.play_sends_command("start")
-        session.assert_sent_failed(result=0)
+        session.assert_sent_failed(result=0, wait_hours=2)

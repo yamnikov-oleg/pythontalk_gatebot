@@ -1,4 +1,5 @@
 import logging
+import math
 import random
 import re
 from contextlib import contextmanager
@@ -320,13 +321,16 @@ class GateBot:
 
                 # User failed and hasn't waited enough time.
                 if time_passed < time_has_to_pass:
+                    wait_seconds = (time_has_to_pass - time_passed)\
+                        .total_seconds()
+                    wait_hours = int(math.ceil(wait_seconds / 3600))
                     bot.send_message(
                         chat_id=user_id,
                         text=messages.FAILED.format(
                             result=quizpass.correct_given,
                             total=len(quizpass.quizitems),
                             required=quizpass.correct_required,
-                            wait_hours=self.config.WAIT_HOURS_ON_FAIL,
+                            wait_hours=wait_hours,
                         ),
                         parse_mode="HTML")
                     return False
