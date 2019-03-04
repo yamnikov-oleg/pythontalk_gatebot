@@ -196,3 +196,19 @@ class TestStories:
 
         session.play_joins_group()
         session.assert_was_restricted()
+
+    def test_fails(self, gatebot: GateBot):
+        session = UserSession(gatebot, force_questions=[
+            QUESTION_1,
+            QUESTION_2,
+            QUESTION_3,
+        ])
+
+        session.play_sends_callback_query(1, "start_quiz")
+        session.play_sends_callback_query(1, "answer_1")  # Wrong
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_2")  # Wrong
+        session.play_sends_callback_query(1, "next")
+        session.play_sends_callback_query(1, "answer_1")  # Correct
+        session.assert_sent_failed(result=1)
+        session.assert_no_restriction_api_calls()

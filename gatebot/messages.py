@@ -9,3 +9,8 @@ GETTING_STARTED = (
 PASSED = (
     "You have passed the quiz with the result of {result}/{total}.\n"
     "You can now chat in the group.")
+
+FAILED = (
+    "Unfortunately you have failed with the result of {result}/{total}, "
+    "which is not enough to pass ({required}). But no worries, you can try "
+    "again in {wait_hours} hours.")

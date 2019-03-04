@@ -250,23 +250,35 @@ class GateBot:
                 quizpass,
             )
 
-            if quizpass.is_finished and quizpass.has_passed:
-                bot.send_message(
-                    chat_id=update.callback_query.from_user.id,
-                    text=messages.PASSED.format(
-                        result=quizpass.correct_given,
-                        total=len(quizpass.quizitems),
-                    ),
-                    parse_mode="HTML",
-                )
-                bot.restrict_chat_member(
-                    chat_id=self.config.GROUP_ID,
-                    user_id=update.callback_query.from_user.id,
-                    can_send_message=True,
-                    can_send_media_messages=True,
-                    can_send_other_messages=True,
-                    can_add_web_page_previews=True,
-                )
+            if quizpass.is_finished:
+                if quizpass.has_passed:
+                    bot.send_message(
+                        chat_id=update.callback_query.from_user.id,
+                        text=messages.PASSED.format(
+                            result=quizpass.correct_given,
+                            total=len(quizpass.quizitems),
+                        ),
+                        parse_mode="HTML",
+                    )
+                    bot.restrict_chat_member(
+                        chat_id=self.config.GROUP_ID,
+                        user_id=update.callback_query.from_user.id,
+                        can_send_message=True,
+                        can_send_media_messages=True,
+                        can_send_other_messages=True,
+                        can_add_web_page_previews=True,
+                    )
+                else:
+                    bot.send_message(
+                        chat_id=update.callback_query.from_user.id,
+                        text=messages.FAILED.format(
+                            result=quizpass.correct_given,
+                            total=len(quizpass.quizitems),
+                            required=self.config.CORRECT_ANSWERS_REQUIRED,
+                            wait_hours=self.config.WAIT_HOURS_ON_FAIL,
+                        ),
+                        parse_mode="HTML",
+                    )
 
     def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
         questions = random.sample(

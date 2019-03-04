@@ -188,6 +188,24 @@ class UserSession:
         assert kwargs['parse_mode'] == "HTML"
         assert 'reply_markup' not in kwargs
 
+    def assert_sent_failed(self, result: int):
+        calls = self.last_bot_mock.send_message.call_args_list
+        assert len(calls) == 1
+
+        total = self.gatebot.config.QUESTIONS_PER_QUIZ
+        required = self.gatebot.config.CORRECT_ANSWERS_REQUIRED
+        wait_hours = self.gatebot.config.WAIT_HOURS_ON_FAIL
+        text = (
+            "Unfortunately you have failed with the result of "
+            f"{result}/{total}, which is not enough to pass ({required}). "
+            f"But no worries, you can try again in {wait_hours} hours.")
+
+        args, kwargs = calls[0]
+        assert kwargs['chat_id'] == self.user_id
+        assert text in kwargs['text']
+        assert kwargs['parse_mode'] == "HTML"
+        assert 'reply_markup' not in kwargs
+
     def assert_question_displayed(
                 self,
                 message_id: int,

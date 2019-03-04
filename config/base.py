@@ -28,3 +28,7 @@ class BaseConfig:
 
     # How many correct answers does user have to present to pass the test?
     CORRECT_ANSWERS_REQUIRED = 11
+
+    # How many hours does user have to wait after failing the quiz
+    # to try again?
+    WAIT_HOURS_ON_FAIL = 72
