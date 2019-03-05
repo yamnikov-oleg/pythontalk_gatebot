@@ -317,7 +317,7 @@ class GateBot:
                 # Test is not finished yet.
                 bot.send_message(
                     chat_id=user_id,
-                    text="You have already started the quiz.",
+                    text=messages.ALREADY_STARTED,
                     parse_mode="HTML")
                 return False
             elif quizpass.has_passed:
