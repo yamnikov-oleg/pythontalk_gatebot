@@ -57,6 +57,10 @@ class GateBot:
             MessageHandler(
                 Filters.status_update.new_chat_members,
                 self.new_chat_members))
+        dispatcher.add_handler(
+            MessageHandler(
+                Filters.status_update.left_chat_member,
+                self.left_chat_member))
         dispatcher.add_handler(CallbackQueryHandler(self.callback_query))
         dispatcher.add_handler(CommandHandler('start', self.command_start))
 
@@ -120,6 +124,19 @@ class GateBot:
                         self.job_kick_if_inactive,
                         when=self.config.KICK_INACTIVE_AFTER,
                         context=member.id)
+
+        if self.config.DELETE_JOIN_MESSAGES:
+            bot.delete_message(
+                chat_id=update.message.chat.id,
+                message_id=update.message.message_id,
+            )
+
+    def left_chat_member(self, bot: Bot, update: Update) -> None:
+        if self.config.DELETE_LEAVE_MESSAGES:
+            bot.delete_message(
+                chat_id=update.message.chat.id,
+                message_id=update.message.message_id,
+            )
 
     def job_kick_if_inactive(self, bot: Bot, job: Job):
         with self.db_session() as session:

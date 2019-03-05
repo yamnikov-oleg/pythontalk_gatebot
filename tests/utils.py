@@ -54,10 +54,11 @@ class UserSession:
     # Play methods
     #
 
-    def play_joins_group(self):
+    def play_joins_group(self, message_id=None):
         self._reset_stage()
 
         update = NonCallableMagicMock()
+        update.message.message_id = message_id or generate_id()
         update.message.chat.id = self.gatebot.config.GROUP_ID
         update.message.new_chat_members = [
             NonCallableMagicMock(id=self.user_id, first_name=self.first_name),
@@ -65,6 +66,18 @@ class UserSession:
 
         with self._gatebot_env():
             self.gatebot.new_chat_members(self.last_bot_mock, update)
+
+    def play_leaves_group(self, message_id=None):
+        self._reset_stage()
+
+        update = NonCallableMagicMock()
+        update.message.message_id = message_id or generate_id()
+        update.message.chat.id = self.gatebot.config.GROUP_ID
+        update.message.left_chat_member = \
+            NonCallableMagicMock(id=self.user_id, first_name=self.first_name)
+
+        with self._gatebot_env():
+            self.gatebot.left_chat_member(self.last_bot_mock, update)
 
     def play_sends_command(self, command: str) -> int:
         self._reset_stage()
@@ -364,3 +377,12 @@ class UserSession:
         next_button = nav_buttons[2]
         assert next_button.text == ">"
         assert next_button.callback_data == "next"
+
+    def assert_deletes_message(self, message_id):
+        self.last_bot_mock.delete_message.assert_called_once_with(
+            chat_id=self.gatebot.config.GROUP_ID,
+            message_id=message_id,
+        )
+
+    def assert_deletes_no_messages(self):
+        self.last_bot_mock.delete_message.assert_not_called()

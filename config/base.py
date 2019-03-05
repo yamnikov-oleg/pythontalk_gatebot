@@ -39,3 +39,7 @@ class BaseConfig:
     # After what time period newly-joined user will kicked if they
     # haven't started the quiz?
     KICK_INACTIVE_AFTER = timedelta(minutes=15)
+
+    # Delete join and leave messages
+    DELETE_JOIN_MESSAGES = True
+    DELETE_LEAVE_MESSAGES = True

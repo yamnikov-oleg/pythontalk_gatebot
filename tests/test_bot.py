@@ -367,3 +367,23 @@ class TestStories:
 
         session.play_time_passed(timedelta(minutes=2))
         session.assert_no_kick_api_calls()
+
+    def test_deletes_join_messages(self, gatebot: GateBot):
+        session = UserSession(gatebot)
+
+        session.play_joins_group(message_id=1)
+        session.assert_deletes_message(1)
+
+        gatebot.config.DELETE_JOIN_MESSAGES = False
+        session.play_joins_group(message_id=2)
+        session.assert_deletes_no_messages()
+
+    def test_deletes_leave_messages(self, gatebot: GateBot):
+        session = UserSession(gatebot)
+
+        session.play_leaves_group(message_id=1)
+        session.assert_deletes_message(1)
+
+        gatebot.config.DELETE_LEAVE_MESSAGES = False
+        session.play_leaves_group(message_id=2)
+        session.assert_deletes_no_messages()
