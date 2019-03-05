@@ -18,7 +18,7 @@ PASSED = (
     "group members to see, if you want it.")
 
 RESULT_SHARE = (
-    "{first_name} has just passed the quiz "
+    "{user} has just passed the quiz "
     "with the result of {result}/{total}.\n"
     "Welcome to the group!")
 

@@ -294,8 +294,11 @@ class UserSession:
         assert len(calls) == 1
 
         total = self.gatebot.config.QUESTIONS_PER_QUIZ
+        user_link = (
+            f'<a href="tg://user?id={self.user_id}">'
+            f'{self.escaped_first_name}</a>')
         text = (
-            f"{self.escaped_first_name} has just passed the quiz "
+            f"{user_link} has just passed the quiz "
             f"with the result of {result}/{total}.\n"
             f"Welcome to the group!")
 

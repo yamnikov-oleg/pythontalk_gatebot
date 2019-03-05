@@ -7,7 +7,7 @@ from datetime import datetime, timezone, timedelta
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton, User
 from telegram.ext import (Updater, MessageHandler, CommandHandler, Filters,
                           CallbackQueryHandler, Job)
 from telegram.update import Update
@@ -71,6 +71,12 @@ class GateBot:
 
     def _escape_html(self, s: str) -> str:
         return s.replace("<", "&lt;").replace(">", "&gt;")
+
+    def _display_user(self, user: User) -> str:
+        return (
+            f'<a href="tg://user?id={user.id}">'
+            f'{self._escape_html(user.first_name)}'
+            '</a>')
 
     @contextmanager
     def db_session(self):
@@ -321,11 +327,10 @@ class GateBot:
             if not can_share:
                 return
 
-            first_name = update.callback_query.from_user.first_name
             bot.send_message(
                 chat_id=self.config.GROUP_ID,
                 text=messages.RESULT_SHARE.format(
-                    first_name=self._escape_html(first_name),
+                    user=self._display_user(update.callback_query.from_user),
                     result=quizpass.correct_given,
                     total=len(quizpass.quizitems),
                 ),
