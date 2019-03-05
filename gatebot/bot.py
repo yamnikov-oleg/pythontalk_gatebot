@@ -69,6 +69,9 @@ class GateBot:
         sm = sessionmaker(bind=engine)
         return sm
 
+    def _escape_html(self, s: str) -> str:
+        return s.replace("<", "&lt;").replace(">", "&gt;")
+
     @contextmanager
     def db_session(self):
         session = self.db_sessionmaker()
@@ -169,6 +172,8 @@ class GateBot:
             self.callback_query_prev(bot, update)
         elif answer_match:
             self.callback_query_answer(bot, update, int(answer_match.group(1)))
+        elif update.callback_query.data == "share_result":
+            self.callback_query_share_result(bot, update)
         else:
             self.callback_query_unknown(bot, update)
 
@@ -272,6 +277,12 @@ class GateBot:
                             total=len(quizpass.quizitems),
                         ),
                         parse_mode="HTML",
+                        reply_markup=InlineKeyboardMarkup([[
+                            InlineKeyboardButton(
+                                "Share the result",
+                                callback_data="share_result",
+                            ),
+                        ]]),
                     )
                     bot.restrict_chat_member(
                         chat_id=self.config.GROUP_ID,
@@ -292,6 +303,37 @@ class GateBot:
                         ),
                         parse_mode="HTML",
                     )
+
+    def callback_query_share_result(self, bot: Bot, update: Update) -> None:
+        self.logger.info("Callback query: share_result")
+        bot.answer_callback_query(
+            callback_query_id=update.callback_query.id,
+        )
+
+        with self.db_session() as session:
+            quizpass = get_active_quizpass(
+                session, update.callback_query.from_user.id)
+
+            can_share = quizpass and \
+                quizpass.is_finished and \
+                quizpass.has_passed and\
+                not quizpass.result_shared
+            if not can_share:
+                return
+
+            first_name = update.callback_query.from_user.first_name
+            bot.send_message(
+                chat_id=self.config.GROUP_ID,
+                text=messages.RESULT_SHARE.format(
+                    first_name=self._escape_html(first_name),
+                    result=quizpass.correct_given,
+                    total=len(quizpass.quizitems),
+                ),
+                parse_mode="HTML",
+            )
+
+            quizpass.result_shared = True
+            session.commit()
 
     def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
         questions = random.sample(
@@ -328,7 +370,14 @@ class GateBot:
                         result=quizpass.correct_given,
                         total=len(quizpass.quizitems),
                     ),
-                    parse_mode="HTML")
+                    parse_mode="HTML",
+                    reply_markup=InlineKeyboardMarkup([[
+                        InlineKeyboardButton(
+                            "Share the result",
+                            callback_data="share_result",
+                        ),
+                    ]]),
+                )
                 return False
             else:
                 now = datetime.utcnow().replace(tzinfo=timezone.utc)

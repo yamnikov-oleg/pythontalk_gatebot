@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 from sqlalchemy_utc import UtcDateTime
-from sqlalchemy import func, Column, Integer, ForeignKey, Text
+from sqlalchemy import func, Column, Integer, ForeignKey, Text, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, relationship
 
@@ -25,6 +25,7 @@ class QuizPass(Base):
     correct_required = Column(Integer, nullable=False)
     current_item_index = Column(Integer, nullable=False, server_default='0')
     created_at = Column(UtcDateTime, default=func.now(), nullable=False)
+    result_shared = Column(Boolean, default=False, server_default='False')
 
     quizitems = relationship(
         'QuizItem',

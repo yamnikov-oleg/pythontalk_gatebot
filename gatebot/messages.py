@@ -13,7 +13,14 @@ ALREADY_STARTED = "You have already started the quiz."
 # after passing it.
 PASSED = (
     "You have passed the quiz with the result of {result}/{total}.\n"
-    "You can now chat in the group.")
+    "You can now chat in the group.\n"
+    "Click the button below to publish your result for other "
+    "group members to see, if you want it.")
+
+RESULT_SHARE = (
+    "{first_name} has just passed the quiz "
+    "with the result of {result}/{total}.\n"
+    "Welcome to the group!")
 
 # Sent when user fails the quiz and when they attempt to start the quiz again
 # too soon after failing it.

@@ -30,6 +30,10 @@ class UserSession:
         self.user_id = generate_id()
         self.force_questions = force_questions
 
+        self.first_name = "Test<User>"
+        # Should be displayed in HTML messages
+        self.escaped_first_name = "Test&lt;User&gt;"
+
         self.last_bot_mock = None
         self.last_play_data = {}
         self._reset_stage()
@@ -56,7 +60,7 @@ class UserSession:
         update = NonCallableMagicMock()
         update.message.chat.id = self.gatebot.config.GROUP_ID
         update.message.new_chat_members = [
-            NonCallableMagicMock(id=self.user_id),
+            NonCallableMagicMock(id=self.user_id, first_name=self.first_name),
         ]
 
         with self._gatebot_env():
@@ -68,6 +72,7 @@ class UserSession:
         update = NonCallableMagicMock()
         update.message.chat.id = self.user_id
         update.message.from_user.id = self.user_id
+        update.message.from_user.first_name = self.first_name
 
         method = getattr(self.gatebot, f'command_{command}')
         with self._gatebot_env():
@@ -79,6 +84,7 @@ class UserSession:
         update = NonCallableMagicMock()
         update.message.chat.id = self.gatebot.config.GROUP_ID
         update.message.from_user.id = self.user_id
+        update.message.from_user.first_name = self.first_name
 
         method = getattr(self.gatebot, f'command_{command}')
         with self._gatebot_env():
@@ -93,6 +99,7 @@ class UserSession:
         update.callback_query.id = self.last_play_data['callback_query_id']
         update.callback_query.data = data
         update.callback_query.from_user.id = self.user_id
+        update.callback_query.from_user.first_name = self.first_name
         update.callback_query.message.chat.id = self.user_id
         update.callback_query.message.message_id = message_id
 
@@ -197,6 +204,10 @@ class UserSession:
             user_id=self.user_id,
         )
 
+    def assert_no_messages_sent(self):
+        calls = self.last_bot_mock.send_message.call_args_list
+        assert len(calls) == 0
+
     def assert_sent_getting_started(self):
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
@@ -243,13 +254,22 @@ class UserSession:
         total = self.gatebot.config.QUESTIONS_PER_QUIZ
         text = (
             f"You have passed the quiz with the result of {result}/{total}.\n"
-            "You can now chat in the group.")
+            "You can now chat in the group.\n"
+            "Click the button below to publish your result for other "
+            "group members to see, if you want it.")
 
         args, kwargs = calls[0]
         assert kwargs['chat_id'] == self.user_id
         assert text in kwargs['text']
         assert kwargs['parse_mode'] == "HTML"
-        assert 'reply_markup' not in kwargs
+
+        button_rows = kwargs['reply_markup'].inline_keyboard
+        assert len(button_rows) == 1
+        buttons = button_rows[0]
+        assert len(buttons) == 1
+        button = buttons[0]
+        assert button.text == "Share the result"
+        assert button.callback_data == "share_result"
 
     def assert_sent_failed(self, result: int, wait_hours: int = None):
         calls = self.last_bot_mock.send_message.call_args_list
@@ -265,6 +285,22 @@ class UserSession:
 
         args, kwargs = calls[0]
         assert kwargs['chat_id'] == self.user_id
+        assert text in kwargs['text']
+        assert kwargs['parse_mode'] == "HTML"
+        assert 'reply_markup' not in kwargs
+
+    def assert_sent_results(self, result: int):
+        calls = self.last_bot_mock.send_message.call_args_list
+        assert len(calls) == 1
+
+        total = self.gatebot.config.QUESTIONS_PER_QUIZ
+        text = (
+            f"{self.escaped_first_name} has just passed the quiz "
+            f"with the result of {result}/{total}.\n"
+            f"Welcome to the group!")
+
+        args, kwargs = calls[0]
+        assert kwargs['chat_id'] == self.gatebot.config.GROUP_ID
         assert text in kwargs['text']
         assert kwargs['parse_mode'] == "HTML"
         assert 'reply_markup' not in kwargs
