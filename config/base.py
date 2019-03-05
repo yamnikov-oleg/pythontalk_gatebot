@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+
 class BaseConfig:
     #
     # Required params
@@ -32,3 +35,7 @@ class BaseConfig:
     # How many hours does user have to wait after failing the quiz
     # to try again?
     WAIT_HOURS_ON_FAIL = 72
+
+    # After what time period newly-joined user will kicked if they
+    # haven't started the quiz?
+    KICK_INACTIVE_AFTER = timedelta(minutes=15)

@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (Updater, MessageHandler, CommandHandler, Filters,
-                          CallbackQueryHandler)
+                          CallbackQueryHandler, Job)
 from telegram.update import Update
 from telegram.utils.request import Request
 
@@ -106,6 +106,26 @@ class GateBot:
                         can_send_other_messages=False,
                         can_add_web_page_previews=False,
                     )
+
+                    self.updater.job_queue.run_once(
+                        self.job_kick_if_inactive,
+                        when=self.config.KICK_INACTIVE_AFTER,
+                        context=member.id)
+
+    def job_kick_if_inactive(self, bot: Bot, job: Job):
+        with self.db_session() as session:
+            user_id = job.context
+            quizpass = get_active_quizpass(session, user_id)
+            if not quizpass:
+                self.logger.info(
+                    "User %s was kicked for not starting the quiz",
+                    user_id)
+                bot.kick_chat_member(
+                    chat_id=self.config.GROUP_ID,
+                    user_id=user_id)
+                bot.unban_chat_member(
+                    chat_id=self.config.GROUP_ID,
+                    user_id=user_id)
 
     def command_start(self, bot: Bot, update: Update) -> None:
         if update.message.chat.id != update.message.from_user.id:

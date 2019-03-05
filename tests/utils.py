@@ -1,3 +1,5 @@
+import queue
+import time
 from contextlib import contextmanager
 from datetime import timedelta
 from random import randint
@@ -107,10 +109,13 @@ class UserSession:
             "Callback query wasn't answered"
 
     def play_time_passed(self, delta: timedelta):
-        # This method simulates passage of time by substracting given timedelta
-        # from the DateTime fields in the bot's DB.
+        # This method simulates passage of time by accessing GateBot's and
+        # python-telegram-bot internals and changing shift timestamps there
+        # by `delta`.
+
         self._reset_stage()
 
+        # Shift back datetime fields in GateBot's DB
         rewind_fields = {
             models.QuizPass: ['created_at'],
             models.QuizItem: ['answered_at'],
@@ -125,6 +130,28 @@ class UserSession:
                             setattr(obj, field, value)
             session.commit()
 
+        # Look through ptb's job queue to run the jobs which are scheduled
+        # to run after `delta` and reschedule those which have to run later.
+        collected_jobs = []
+        while True:
+            try:
+                run_at, job = self.gatebot.updater.job_queue._queue.get(False)
+                collected_jobs.append((run_at, job))
+            except queue.Empty:
+                break
+
+        reschedule_jobs = []
+        now = time.time()
+        for run_at, job in collected_jobs:
+            run_at -= delta.total_seconds()
+            if run_at < now:
+                job.run(self.last_bot_mock)
+            else:
+                reschedule_jobs.append((run_at, job))
+
+        for run_at, job in reschedule_jobs:
+            self.gatebot.updater.job_queue._queue.put((run_at, job))
+
     #
     # Assert methods
     #
@@ -134,6 +161,9 @@ class UserSession:
 
     def assert_no_restriction_api_calls(self):
         assert len(self.last_bot_mock.restrict_chat_member.call_args_list) == 0
+
+    def assert_no_kick_api_calls(self):
+        assert len(self.last_bot_mock.kick_chat_member.call_args_list) == 0
 
     def assert_was_restricted(self):
         self.last_bot_mock.restrict_chat_member.assert_called_once_with(
@@ -153,6 +183,18 @@ class UserSession:
             can_send_media_messages=True,
             can_send_other_messages=True,
             can_add_web_page_previews=True,
+        )
+
+    def assert_was_kicked(self):
+        self.last_bot_mock.kick_chat_member.assert_called_once_with(
+            chat_id=self.gatebot.config.GROUP_ID,
+            user_id=self.user_id,
+        )
+
+    def assert_was_unbanned(self):
+        self.last_bot_mock.unban_chat_member.assert_called_once_with(
+            chat_id=self.gatebot.config.GROUP_ID,
+            user_id=self.user_id,
         )
 
     def assert_sent_getting_started(self):
