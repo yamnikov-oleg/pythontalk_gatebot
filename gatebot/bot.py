@@ -322,6 +322,7 @@ class GateBot:
                             ),
                         ]]),
                     )
+                    # May fail if the user is admin
                     bot.restrict_chat_member(
                         chat_id=self.config.GROUP_ID,
                         user_id=update.callback_query.from_user.id,
