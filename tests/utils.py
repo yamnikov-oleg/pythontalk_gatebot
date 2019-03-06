@@ -21,11 +21,27 @@ def generate_id() -> int:
 
 
 class UserSession:
+    """
+    This class provides several methods to simulate a user's actions and
+    other events (play_* methods) and assert bot's reaction to these events
+    (assert_* methods).
+
+    Each "play" method resets the mock of telegram bot api, which means that
+    assert methods only assert bot's reaction to the most recent action.
+
+    Upon construction this class generates a new user id and sends all updates
+    to the bot on the behalf of that virtual user.
+    """
     def __init__(
                 self,
                 gatebot: GateBot,
                 force_questions: Optional[List[Question]] = None,
             ):
+        """
+        If force_questions is specified, UserSession will patch
+        random.sample function to make GateBot generate new quizzes with
+        the given questions.
+        """
         self.gatebot = gatebot
         self.user_id = generate_id()
         self.force_questions = force_questions
@@ -55,6 +71,7 @@ class UserSession:
     #
 
     def play_joins_group(self, message_id=None):
+        """User joins the group"""
         self._reset_stage()
 
         update = NonCallableMagicMock()
@@ -68,6 +85,7 @@ class UserSession:
             self.gatebot.new_chat_members(self.last_bot_mock, update)
 
     def play_leaves_group(self, message_id=None):
+        """User leaves the group"""
         self._reset_stage()
 
         update = NonCallableMagicMock()
@@ -80,6 +98,7 @@ class UserSession:
             self.gatebot.left_chat_member(self.last_bot_mock, update)
 
     def play_sends_command(self, command: str) -> int:
+        """User sends a command to the bot in PM"""
         self._reset_stage()
 
         update = NonCallableMagicMock()
@@ -92,6 +111,7 @@ class UserSession:
             method(self.last_bot_mock, update)
 
     def play_sends_command_group(self, command: str):
+        """User sends a command to the group"""
         self._reset_stage()
 
         update = NonCallableMagicMock()
@@ -104,6 +124,7 @@ class UserSession:
             method(self.last_bot_mock, update)
 
     def play_sends_callback_query(self, message_id: int, data: str):
+        """User sends a callback query"""
         self._reset_stage()
 
         self.last_play_data['callback_query_id'] = generate_id()
@@ -129,10 +150,12 @@ class UserSession:
             "Callback query wasn't answered"
 
     def play_time_passed(self, delta: timedelta):
-        # This method simulates passage of time by accessing GateBot's and
-        # python-telegram-bot internals and changing shift timestamps there
-        # by `delta`.
-
+        """
+        This methods simulates passage of time using following hacks:
+        1. It shifts datetimes in the gatebot's DB back by delta.
+        2. It reschedules jobs in ptb's updater's job queue back by delta and
+        runs those jobs which are due.
+        """
         self._reset_stage()
 
         # Shift back datetime fields in GateBot's DB
@@ -177,15 +200,19 @@ class UserSession:
     #
 
     def assert_no_api_calls(self):
+        """GateBot made to calls to telegram bot api"""
         assert len(self.last_bot_mock.method_calls) == 0
 
     def assert_no_restriction_api_calls(self):
+        """GateBot made no restrict_chat_member calls"""
         assert len(self.last_bot_mock.restrict_chat_member.call_args_list) == 0
 
     def assert_no_kick_api_calls(self):
+        """GateBot made no kick_chat_member calls"""
         assert len(self.last_bot_mock.kick_chat_member.call_args_list) == 0
 
     def assert_was_restricted(self):
+        """GateBot restricted current user"""
         self.last_bot_mock.restrict_chat_member.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
             user_id=self.user_id,
@@ -196,6 +223,7 @@ class UserSession:
         )
 
     def assert_was_unrestricted(self):
+        """GateBot unrestricted current user"""
         self.last_bot_mock.restrict_chat_member.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
             user_id=self.user_id,
@@ -206,22 +234,29 @@ class UserSession:
         )
 
     def assert_was_kicked(self):
+        """GateBot kicked current user"""
         self.last_bot_mock.kick_chat_member.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
             user_id=self.user_id,
         )
 
     def assert_was_unbanned(self):
+        """GateBot unbanned current user"""
         self.last_bot_mock.unban_chat_member.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
             user_id=self.user_id,
         )
 
     def assert_no_messages_sent(self):
+        """GateBot made no send_message calls"""
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 0
 
     def assert_sent_getting_started(self):
+        """
+        GateBot sent "getting started" message to the user with the button
+        to start the quiz.
+        """
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
@@ -249,6 +284,7 @@ class UserSession:
         assert button.callback_data == "start_quiz"
 
     def assert_sent_already_started(self):
+        """GateBot notified user that they have already started the quiz."""
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
@@ -261,6 +297,10 @@ class UserSession:
         assert 'reply_markup' not in kwargs
 
     def assert_sent_passed(self, result: int):
+        """
+        GateBot notified user that they have passed the test and shown
+        their result with the button to share it.
+        """
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
@@ -285,6 +325,10 @@ class UserSession:
         assert button.callback_data == "share_result"
 
     def assert_sent_failed(self, result: int, wait_hours: int = None):
+        """
+        GateBot notified user that they have passed the test and shown
+        their result.
+        """
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
@@ -303,6 +347,9 @@ class UserSession:
         assert 'reply_markup' not in kwargs
 
     def assert_sent_results(self, result: int):
+        """
+        GateBot sent user's quiz result into the group.
+        """
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
@@ -328,6 +375,20 @@ class UserSession:
                 pos: int,
                 answered: Optional[str] = None,
             ):
+        """
+        GateBot updated the quiz message to display the given question.
+
+        `pos` specified number of the question in the quiz (1 for the first
+        question), which is required because GateBot displays it in the
+        message.
+
+        If `answered` is not specified, the question will be expected to be
+        unanswered.
+        If `answered` is set to 'correct', the question will be expected to
+        be answered correctly.
+        If `answered` is set to 'wrong', the question will be expected to
+        be answered incorrectly.
+        """
         if answered not in [None, 'correct', 'wrong']:
             raise ValueError(f"Invalid value of answered: {answered!r}")
 
@@ -379,10 +440,12 @@ class UserSession:
         assert next_button.callback_data == "next"
 
     def assert_deletes_message(self, message_id):
+        """GateBot has deleted the given message"""
         self.last_bot_mock.delete_message.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
             message_id=message_id,
         )
 
     def assert_deletes_no_messages(self):
+        """GateBot made no delete_message calls"""
         self.last_bot_mock.delete_message.assert_not_called()
