@@ -8,7 +8,7 @@ from unittest.mock import NonCallableMagicMock, patch
 
 from telegram import Bot
 
-from gatebot import models
+from gatebot import models, messages
 from gatebot.bot import GateBot
 from gatebot.questions import Question
 
@@ -260,15 +260,10 @@ class UserSession:
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
-        qs = self.gatebot.config.QUESTIONS_PER_QUIZ
-        ans = self.gatebot.config.CORRECT_ANSWERS_REQUIRED
-        welcome_text = (
-            f"Hello fellow pythonista!\n"
-            f"You're going to be presented with {qs} randomly picked "
-            "questions about Python. To pass the test and be able to chat "
-            f"you'll have to answer correctly {ans} of them.\n"
-            "When you're ready, press 'Start the quiz'.\n"
-            "Good luck!")
+        welcome_text = messages.GETTING_STARTED.format(
+            questions_total=self.gatebot.config.QUESTIONS_PER_QUIZ,
+            answers_required=self.gatebot.config.CORRECT_ANSWERS_REQUIRED,
+        )
 
         args, kwargs = calls[0]
         assert kwargs['chat_id'] == self.user_id
@@ -288,7 +283,7 @@ class UserSession:
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
-        text = "You have already started the quiz."
+        text = messages.ALREADY_STARTED
 
         args, kwargs = calls[0]
         assert kwargs['chat_id'] == self.user_id
@@ -304,12 +299,10 @@ class UserSession:
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
-        total = self.gatebot.config.QUESTIONS_PER_QUIZ
-        text = (
-            f"You have passed the quiz with the result of {result}/{total}.\n"
-            "You can now chat in the group.\n"
-            "Click the button below to publish your result for other "
-            "group members to see, if you want it.")
+        text = messages.PASSED.format(
+            result=result,
+            total=self.gatebot.config.QUESTIONS_PER_QUIZ,
+        )
 
         args, kwargs = calls[0]
         assert kwargs['chat_id'] == self.user_id
@@ -332,13 +325,12 @@ class UserSession:
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
-        total = self.gatebot.config.QUESTIONS_PER_QUIZ
-        required = self.gatebot.config.CORRECT_ANSWERS_REQUIRED
-        wait_hours = wait_hours or self.gatebot.config.WAIT_HOURS_ON_FAIL
-        text = (
-            "Unfortunately you have failed with the result of "
-            f"{result}/{total}, which is not enough to pass ({required}). "
-            f"But no worries, you can try again in {wait_hours} hours.")
+        text = messages.FAILED.format(
+            result=result,
+            total=self.gatebot.config.QUESTIONS_PER_QUIZ,
+            required=self.gatebot.config.CORRECT_ANSWERS_REQUIRED,
+            wait_hours=wait_hours or self.gatebot.config.WAIT_HOURS_ON_FAIL,
+        )
 
         args, kwargs = calls[0]
         assert kwargs['chat_id'] == self.user_id
@@ -353,14 +345,14 @@ class UserSession:
         calls = self.last_bot_mock.send_message.call_args_list
         assert len(calls) == 1
 
-        total = self.gatebot.config.QUESTIONS_PER_QUIZ
         user_link = (
             f'<a href="tg://user?id={self.user_id}">'
             f'{self.escaped_first_name}</a>')
-        text = (
-            f"{user_link} has just passed the quiz "
-            f"with the result of {result}/{total}.\n"
-            f"Welcome to the group!")
+        text = messages.RESULT_SHARE.format(
+            user=user_link,
+            result=result,
+            total=self.gatebot.config.QUESTIONS_PER_QUIZ,
+        )
 
         args, kwargs = calls[0]
         assert kwargs['chat_id'] == self.gatebot.config.GROUP_ID
