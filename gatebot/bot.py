@@ -82,6 +82,9 @@ class GateBot:
             f'{self._escape_html(user.first_name)}'
             '</a>')
 
+    def _log_user(self, user: User) -> str:
+        return f"{user.first_name} (id={user.id})"
+
     @contextmanager
     def db_session(self):
         session = self.db_sessionmaker()
@@ -103,7 +106,7 @@ class GateBot:
         with self.db_session() as session:
             for member in update.message.new_chat_members:
                 self.logger.info(
-                    "New user %s joined, id: %s", member.first_name, member.id)
+                    "New user joined: %s", self._log_user(member))
 
                 quizpass = get_active_quizpass(session, member.id)
                 allowed_to_chat = quizpass and \
@@ -132,6 +135,8 @@ class GateBot:
             )
 
     def left_chat_member(self, bot: Bot, update: Update) -> None:
+        self.logger.info(
+            "User left: %s", self._log_user(update.message.left_chat_member))
         if self.config.DELETE_LEAVE_MESSAGES:
             bot.delete_message(
                 chat_id=update.message.chat.id,
@@ -144,7 +149,7 @@ class GateBot:
             quizpass = get_active_quizpass(session, user_id)
             if not quizpass:
                 self.logger.info(
-                    "User %s was kicked for not starting the quiz",
+                    "User (id=%s) was kicked for not starting the quiz",
                     user_id)
                 bot.kick_chat_member(
                     chat_id=self.config.GROUP_ID,
@@ -159,9 +164,8 @@ class GateBot:
             return
 
         self.logger.info(
-            "/start command sent by %s, id: %s",
-            update.message.from_user.first_name,
-            update.message.from_user.id)
+            "/start command sent by %s",
+            self._log_user(update.message.from_user))
 
         with self.db_session() as session:
             if not self._on_start_quiz(
@@ -202,7 +206,9 @@ class GateBot:
 
     def callback_query_unknown(self, bot: Bot, update: Update) -> None:
         self.logger.info(
-            "Unknown callback query: %s", update.callback_query.data)
+            "Unknown callback query '%s' from %s",
+            update.callback_query.data,
+            self._log_user(update.callback_query.from_user))
         bot.answer_callback_query(
             callback_query_id=update.callback_query.id,
         )
@@ -213,7 +219,9 @@ class GateBot:
         )
 
     def callback_query_start_quiz(self, bot: Bot, update: Update) -> None:
-        self.logger.info("Callback query: start_quiz")
+        self.logger.info(
+            "Callback query 'start_quiz' from %s",
+            self._log_user(update.callback_query.from_user))
         bot.answer_callback_query(
             callback_query_id=update.callback_query.id,
         )
@@ -233,7 +241,9 @@ class GateBot:
             )
 
     def callback_query_next(self, bot: Bot, update: Update) -> None:
-        self.logger.info("Callback query: next")
+        self.logger.info(
+            "Callback query 'next' from %s",
+            self._log_user(update.callback_query.from_user))
         bot.answer_callback_query(
             callback_query_id=update.callback_query.id,
         )
@@ -252,7 +262,9 @@ class GateBot:
             )
 
     def callback_query_prev(self, bot: Bot, update: Update) -> None:
-        self.logger.info("Callback query: prev")
+        self.logger.info(
+            "Callback query 'prev' from %s",
+            self._log_user(update.callback_query.from_user))
         bot.answer_callback_query(
             callback_query_id=update.callback_query.id,
         )
@@ -272,7 +284,10 @@ class GateBot:
 
     def callback_query_answer(
             self, bot: Bot, update: Update, answer: int) -> None:
-        self.logger.info(f"Callback query: answer {answer}")
+        self.logger.info(
+            "Callback query 'answer_%s' from %s",
+            answer,
+            self._log_user(update.callback_query.from_user))
         bot.answer_callback_query(
             callback_query_id=update.callback_query.id,
         )
@@ -328,7 +343,9 @@ class GateBot:
                     )
 
     def callback_query_share_result(self, bot: Bot, update: Update) -> None:
-        self.logger.info("Callback query: share_result")
+        self.logger.info(
+            "Callback query 'share_result' from %s",
+            self._log_user(update.callback_query.from_user))
         bot.answer_callback_query(
             callback_query_id=update.callback_query.id,
         )
