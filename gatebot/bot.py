@@ -18,7 +18,7 @@ from config.base import BaseConfig
 from . import messages
 from .models import (init_models, create_quizpass, get_active_quizpass,
                      QuizPass)
-from .questions import load_question
+from .questions import load_questions
 
 
 logging.basicConfig(
@@ -34,7 +34,7 @@ class GateBot:
         self.logger = logging.getLogger('gatebot')
         self.updater = self._init_updater()
         self.db_sessionmaker = self._init_db_sessionmaker()
-        self.questions = load_question(self.config.QUESTIONS_FILE)
+        self.questions = load_questions(self.config.QUESTIONS_FILE)
 
     def _init_updater(self) -> Updater:
         if self.config.PROXY_URL:
@@ -436,6 +436,10 @@ class GateBot:
                 user_id: int,
                 quizpass: QuizPass,
             ) -> None:
+        """
+        Edits the given message to display current question in the given
+        quizpass.
+        """
         item = quizpass.current_item
         text = f"{item.text}\n\n"
         for option in item.options:

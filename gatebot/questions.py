@@ -13,7 +13,7 @@ class Question:
             raise ValueError(f"answer is out of range")
 
 
-def load_question(path: str) -> List[Question]:
+def load_questions(path: str) -> List[Question]:
     with open(path) as f:
         question_dicts = json.load(f)
 

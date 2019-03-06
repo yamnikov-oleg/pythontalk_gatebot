@@ -128,8 +128,6 @@ class Option(Base):
 
 
 def init_models(engine):
-    # TODO: Is this necessary? Check later. I would like to avoid
-    # any global state in the project.
     Base.metadata.bind = engine
 
 
