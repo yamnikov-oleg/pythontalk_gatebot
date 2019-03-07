@@ -41,7 +41,8 @@ class GateBot:
             request = Request(con_pool_size=8, proxy_url=self.config.PROXY_URL)
             bot = Bot(self.config.BOT_TOKEN, request=request)
         else:
-            bot = Bot(self.config.BOT_TOKEN)
+            request = Request(con_pool_size=8)
+            bot = Bot(self.config.BOT_TOKEN, request=request)
 
         updater = Updater(
             bot=bot,
