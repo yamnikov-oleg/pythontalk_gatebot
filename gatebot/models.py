@@ -1,10 +1,11 @@
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from sqlalchemy_utc import UtcDateTime
-from sqlalchemy import func, Column, Integer, ForeignKey, Text, Boolean
+from sqlalchemy import (BigInteger, Boolean, Column, ForeignKey, Integer, Text,
+                        func)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, relationship
+from sqlalchemy_utc import UtcDateTime
 
 from .questions import Question
 
@@ -21,7 +22,7 @@ class QuizPass(Base):
     id = Column(Integer, primary_key=True)
 
     # Telegram user id
-    user_id = Column(Integer, index=True, nullable=False)
+    user_id = Column(BigInteger, index=True, nullable=False)
     correct_required = Column(Integer, nullable=False)
     current_item_index = Column(Integer, nullable=False, server_default='0')
     created_at = Column(UtcDateTime, default=func.now(), nullable=False)
