@@ -30,6 +30,7 @@ class QuizPass(Base):
 
     quizitems = relationship(
         'QuizItem',
+        cascade="all, delete-orphan",
         order_by='QuizItem.index',
         back_populates='quizpass')
 
@@ -85,6 +86,8 @@ class QuizItem(Base):
     quizpass_id = Column(Integer, ForeignKey('quizpass.id'), nullable=False)
     quizpass = relationship(
         'QuizPass',
+        single_parent=True,
+        cascade="all, delete-orphan",
         back_populates='quizitems')
 
     index = Column(Integer, nullable=False)
@@ -95,6 +98,7 @@ class QuizItem(Base):
 
     options = relationship(
         'Option',
+        cascade="all, delete-orphan",
         order_by='Option.index',
         back_populates='quizitem')
 
@@ -122,6 +126,8 @@ class Option(Base):
     quizitem_id = Column(Integer, ForeignKey('quizitem.id'), nullable=False)
     quizitem = relationship(
         'QuizItem',
+        single_parent=True,
+        cascade="all, delete-orphan",
         back_populates='options')
 
     index = Column(Integer, nullable=False)
