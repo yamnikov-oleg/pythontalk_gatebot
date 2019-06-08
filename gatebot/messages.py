@@ -6,9 +6,6 @@ GETTING_STARTED = (
     "When you're ready, press 'Start the quiz'.\n\n"
     "Good luck!")
 
-# Sent when users attempts to restart an unfinished quiz.
-ALREADY_STARTED = "You have already started the quiz."
-
 # Sent when user passes the quiz and when they attempt to start the quiz again
 # after passing it.
 PASSED = (

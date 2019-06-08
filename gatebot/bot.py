@@ -232,6 +232,17 @@ class GateBot:
                     session, bot, update.callback_query.from_user.id):
                 return
 
+            quizpass = get_active_quizpass(
+                session, update.callback_query.from_user.id)
+            if quizpass and not quizpass.is_finished:
+                self._display_quizpass(
+                    bot,
+                    update.callback_query.message.message_id,
+                    update.callback_query.from_user.id,
+                    quizpass,
+                )
+                return
+
             quizpass = self._generate_quizpass(
                 session, update.callback_query.from_user.id)
             self._display_quizpass(
@@ -395,15 +406,8 @@ class GateBot:
         If they can't sends appropriate message to the user and returns False.
         """
         quizpass = get_active_quizpass(session, user_id)
-        if quizpass:
-            if not quizpass.is_finished:
-                # Test is not finished yet.
-                bot.send_message(
-                    chat_id=user_id,
-                    text=messages.ALREADY_STARTED,
-                    parse_mode="HTML")
-                return False
-            elif quizpass.has_passed:
+        if quizpass and quizpass.is_finished:
+            if quizpass.has_passed:
                 # User has passed.
                 bot.send_message(
                     chat_id=user_id,

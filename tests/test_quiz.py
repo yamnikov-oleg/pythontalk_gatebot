@@ -82,11 +82,14 @@ def test_user_starts_quiz_twice(gatebot: GateBot):
     session.play_sends_callback_query(1, "start_quiz")
     session.assert_question_displayed(1, QUESTION_1, pos=1)
 
-    session.play_sends_callback_query(2, "start_quiz")
-    session.assert_sent_already_started()
+    session.play_sends_callback_query(1, "answer_0")
+    session.assert_question_displayed(
+        1, QUESTION_1, pos=1, answered='correct')
 
-    session.play_sends_command("start")
-    session.assert_sent_already_started()
+    # Quiz is not recreated
+    session.play_sends_callback_query(2, "start_quiz")
+    session.assert_question_displayed(
+        2, QUESTION_1, pos=1, answered='correct')
 
 
 def test_navigation(gatebot: GateBot):

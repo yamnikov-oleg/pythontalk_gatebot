@@ -278,19 +278,6 @@ class UserSession:
         assert button.text == "Start the quiz"
         assert button.callback_data == "start_quiz"
 
-    def assert_sent_already_started(self):
-        """GateBot notified user that they have already started the quiz."""
-        calls = self.last_bot_mock.send_message.call_args_list
-        assert len(calls) == 1
-
-        text = messages.ALREADY_STARTED
-
-        args, kwargs = calls[0]
-        assert kwargs['chat_id'] == self.user_id
-        assert text in kwargs['text']
-        assert kwargs['parse_mode'] == "HTML"
-        assert 'reply_markup' not in kwargs
-
     def assert_sent_passed(self, result: int):
         """
         GateBot notified user that they have passed the test and shown
