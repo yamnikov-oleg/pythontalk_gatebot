@@ -6,7 +6,7 @@ from random import randint
 from typing import Optional, List
 from unittest.mock import NonCallableMagicMock, patch
 
-from telegram import Bot
+from telegram import Bot, ChatMember, MessageEntity
 
 from gatebot import models, messages
 from gatebot.bot import GateBot
@@ -18,6 +18,13 @@ def generate_id() -> int:
     Can be used to randomly generate user ids, message ids, etc.
     """
     return randint(100, 1000)
+
+
+def mock_user_entity(session: 'UserSession'):
+    entity = NonCallableMagicMock()
+    entity.user.id = session.user_id
+    entity.user.first_name = session.first_name
+    return entity
 
 
 class UserSession:
@@ -36,6 +43,7 @@ class UserSession:
                 self,
                 gatebot: GateBot,
                 force_questions: Optional[List[Question]] = None,
+                member_status: str = 'member',
             ):
         """
         If force_questions is specified, UserSession will patch
@@ -45,6 +53,7 @@ class UserSession:
         self.gatebot = gatebot
         self.user_id = generate_id()
         self.force_questions = force_questions
+        self.member_status = member_status
 
         self.first_name = "Test<User>"
         # Should be displayed in HTML messages
@@ -56,6 +65,20 @@ class UserSession:
 
     def _reset_stage(self) -> NonCallableMagicMock:
         self.last_bot_mock = NonCallableMagicMock(spec=Bot)
+
+        # Set up get_chat_member mock
+        def get_chat_member(chat_id, user_id):
+            if int(user_id) == self.user_id:
+                status = self.member_status
+            else:
+                status = 'member'
+
+            chat_member = NonCallableMagicMock(spec=ChatMember)
+            chat_member.status = status
+            return chat_member
+
+        self.last_bot_mock.get_chat_member.side_effect = get_chat_member
+
         self.last_play_data = {}
 
     @contextmanager
@@ -110,14 +133,31 @@ class UserSession:
         with self._gatebot_env():
             method(self.last_bot_mock, update)
 
-    def play_sends_command_group(self, command: str):
+    def play_sends_command_group(
+            self,
+            command_text: str,
+            entities=None,
+            reply_to: 'UserSession' = None):
         """User sends a command to the group"""
         self._reset_stage()
+
+        if " " in command_text:
+            command, _ = command_text.split(" ", 1)
+        else:
+            command = command_text
 
         update = NonCallableMagicMock()
         update.message.chat.id = self.gatebot.config.GROUP_ID
         update.message.from_user.id = self.user_id
         update.message.from_user.first_name = self.first_name
+        update.message.text = command_text
+        update.message.entities = entities
+
+        if reply_to:
+            update.message.reply_to_message.from_user.id = reply_to.user_id
+            update.message.reply_to_message.from_user.first_name = reply_to.first_name
+        else:
+            update.message.reply_to_message = None
 
         method = getattr(self.gatebot, f'command_{command}')
         with self._gatebot_env():
@@ -233,18 +273,18 @@ class UserSession:
             can_add_web_page_previews=True,
         )
 
-    def assert_was_kicked(self):
+    def assert_was_kicked(self, user_id=None):
         """GateBot kicked current user"""
         self.last_bot_mock.kick_chat_member.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
-            user_id=self.user_id,
+            user_id=user_id or self.user_id,
         )
 
-    def assert_was_unbanned(self):
+    def assert_was_unbanned(self, user_id=None):
         """GateBot unbanned current user"""
         self.last_bot_mock.unban_chat_member.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
-            user_id=self.user_id,
+            user_id=user_id or self.user_id,
         )
 
     def assert_no_messages_sent(self):
@@ -346,6 +386,34 @@ class UserSession:
         assert text in kwargs['text']
         assert kwargs['parse_mode'] == "HTML"
         assert 'reply_markup' not in kwargs
+
+    def assert_sent_unauthorized(self):
+        calls = self.last_bot_mock.send_message.call_args_list
+        assert len(calls) == 1
+
+        args, kwargs = calls[0]
+        assert kwargs['chat_id'] == self.gatebot.config.GROUP_ID
+        assert messages.UNAUTHORIZED in kwargs['text']
+        assert kwargs['parse_mode'] == "HTML"
+
+    def assert_sent_kicked(self, session: 'UserSession', by_id: bool = False):
+        calls = self.last_bot_mock.send_message.call_args_list
+        assert len(calls) == 1
+
+        if by_id:
+            displayed_name = session.user_id
+        else:
+            displayed_name = session.escaped_first_name
+
+        user_link = (
+            f'<a href="tg://user?id={session.user_id}">'
+            f'{displayed_name}</a>')
+        text = messages.KICKED.format(user=user_link)
+
+        args, kwargs = calls[0]
+        assert kwargs['chat_id'] == self.gatebot.config.GROUP_ID
+        assert text in kwargs['text']
+        assert kwargs['parse_mode'] == "HTML"
 
     def assert_question_displayed(
                 self,

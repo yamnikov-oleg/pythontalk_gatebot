@@ -4,6 +4,7 @@ import random
 import re
 from contextlib import contextmanager
 from datetime import datetime, timezone, timedelta
+from typing import Optional, Tuple
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -64,6 +65,7 @@ class GateBot:
                 self.left_chat_member))
         dispatcher.add_handler(CallbackQueryHandler(self.callback_query))
         dispatcher.add_handler(CommandHandler('start', self.command_start))
+        dispatcher.add_handler(CommandHandler('kick', self.command_kick))
 
         return updater
 
@@ -77,10 +79,10 @@ class GateBot:
     def _escape_html(self, s: str) -> str:
         return s.replace("<", "&lt;").replace(">", "&gt;")
 
-    def _display_user(self, user: User) -> str:
+    def _display_user(self, id, first_name) -> str:
         return (
-            f'<a href="tg://user?id={user.id}">'
-            f'{self._escape_html(user.first_name)}'
+            f'<a href="tg://user?id={id}">'
+            f'{self._escape_html(first_name)}'
             '</a>')
 
     def _log_user(self, user: User) -> str:
@@ -186,6 +188,73 @@ class GateBot:
             ]]),
         )
 
+    def _get_target(self, update: Update) -> Optional[Tuple[int, str]]:
+        if update.message.entities:
+            for entity in update.message.entities:
+                if entity.user:
+                    return entity.user.id, entity.user.first_name
+
+        if update.message.reply_to_message:
+            user = update.message.reply_to_message.from_user
+            return user.id, user.first_name
+
+        try:
+            command, args = update.message.text.split(" ", 1)
+            return int(args), args
+        except (TypeError, ValueError):
+            pass
+
+        return None
+
+    def _is_admin(self, bot: Bot, user_id: int) -> bool:
+        chat_member = bot.get_chat_member(self.config.GROUP_ID, user_id)
+        return chat_member.status in ['creator', 'admin']
+
+    def command_kick(self, bot: Bot, update: Update) -> None:
+        if not self._is_admin(bot, update.message.from_user.id):
+            bot.send_message(
+                chat_id=self.config.GROUP_ID,
+                text=messages.UNAUTHORIZED,
+                parse_mode="HTML",
+                reply_to_message_id=update.message.message_id,
+            )
+            return
+
+        self.logger.info(
+            "/kick command sent by %s",
+            self._log_user(update.message.from_user))
+
+        target = self._get_target(update)
+        if not target:
+            bot.send_message(
+                chat_id=self.config.GROUP_ID,
+                text=messages.NO_TARGET,
+                parse_mode="HTML",
+                reply_to_message_id=update.message.message_id,
+            )
+            return
+
+        target_id, target_name = target
+
+        bot.kick_chat_member(
+            chat_id=self.config.GROUP_ID,
+            user_id=target_id)
+        bot.unban_chat_member(
+            chat_id=self.config.GROUP_ID,
+            user_id=target_id)
+
+        bot.send_message(
+            chat_id=self.config.GROUP_ID,
+            text=messages.KICKED.format(user=self._display_user(target_id, target_name)),
+            parse_mode="HTML",
+            reply_to_message_id=update.message.message_id,
+        )
+
+        with self.db_session() as session:
+            quizpass = get_active_quizpass(session, target_id)
+            if quizpass:
+                session.delete(quizpass)
+
     def callback_query(self, bot: Bot, update: Update) -> None:
         answer_re = re.compile(r'^answer_(\d+)$')
         answer_match = answer_re.match(update.callback_query.data)
@@ -263,6 +332,9 @@ class GateBot:
         with self.db_session() as session:
             quizpass = get_active_quizpass(
                 session, update.callback_query.from_user.id)
+            if not quizpass:
+                return
+
             quizpass.move_to_next()
             session.commit()
 
@@ -284,6 +356,9 @@ class GateBot:
         with self.db_session() as session:
             quizpass = get_active_quizpass(
                 session, update.callback_query.from_user.id)
+            if not quizpass:
+                return
+
             quizpass.move_to_prev()
             session.commit()
 
@@ -307,6 +382,9 @@ class GateBot:
         with self.db_session() as session:
             quizpass = get_active_quizpass(
                 session, update.callback_query.from_user.id)
+            if not quizpass:
+                return
+
             if not quizpass.current_item.is_answered:
                 quizpass.current_item.set_answer(answer)
             session.commit()
@@ -366,6 +444,8 @@ class GateBot:
         with self.db_session() as session:
             quizpass = get_active_quizpass(
                 session, update.callback_query.from_user.id)
+            if not quizpass:
+                return
 
             can_share = quizpass and \
                 quizpass.is_finished and \
@@ -377,7 +457,10 @@ class GateBot:
             bot.send_message(
                 chat_id=self.config.GROUP_ID,
                 text=messages.RESULT_SHARE.format(
-                    user=self._display_user(update.callback_query.from_user),
+                    user=self._display_user(
+                        update.callback_query.from_user.id,
+                        update.callback_query.from_user.first_name,
+                    ),
                     result=quizpass.correct_given,
                     total=len(quizpass.quizitems),
                 ),

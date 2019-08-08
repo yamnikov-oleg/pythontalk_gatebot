@@ -25,3 +25,12 @@ FAILED = (
     "which is not enough to pass ({required}). But no worries, you can try "
     "again in {wait_hours} hours.\n\n"
     "When the time has passed, click /start to try again.")
+
+# Sent when non-admin attempts to call admin command.
+UNAUTHORIZED = "Haha, no."
+
+# Sent when admin sends a targetted command, but doesn't target any user.
+NO_TARGET = "Target a user by id, username or reply."
+
+# Sent when a user is kicked.
+KICKED = "{user} was kicked and has to restart the quiz on join."
