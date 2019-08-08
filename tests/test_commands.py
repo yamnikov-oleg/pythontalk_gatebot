@@ -91,6 +91,21 @@ def test_kick(gatebot: GateBot, admin_status: str, method):
     member_session.assert_question_displayed(1, QUESTION_1, pos=1)
 
 
+def test_kickme(gatebot: GateBot):
+    session = make_passed_member(gatebot, 'member')
+
+    session.play_sends_command_group("kickme")
+    session.assert_was_kicked()
+    session.assert_was_unbanned()
+    session.assert_sent_kicked(session)
+
+    session.play_joins_group()
+    session.assert_was_restricted()
+
+    session.play_sends_callback_query(1, "start_quiz")
+    session.assert_question_displayed(1, QUESTION_1, pos=1)
+
+
 @pytest.mark.parametrize('command', ['kick'])
 @pytest.mark.parametrize('method', ['by_id', 'by_text_mention', 'by_reply'])
 def test_unauthorized(gatebot: GateBot, command, method):

@@ -66,6 +66,7 @@ class GateBot:
         dispatcher.add_handler(CallbackQueryHandler(self.callback_query))
         dispatcher.add_handler(CommandHandler('start', self.command_start))
         dispatcher.add_handler(CommandHandler('kick', self.command_kick))
+        dispatcher.add_handler(CommandHandler('kickme', self.command_kickme))
 
         return updater
 
@@ -252,6 +253,32 @@ class GateBot:
 
         with self.db_session() as session:
             quizpass = get_active_quizpass(session, target_id)
+            if quizpass:
+                session.delete(quizpass)
+
+    def command_kickme(self, bot: Bot, update: Update) -> None:
+        self.logger.info(
+            "/kickme command sent by %s",
+            self._log_user(update.message.from_user))
+
+        target = update.message.from_user
+
+        bot.kick_chat_member(
+            chat_id=self.config.GROUP_ID,
+            user_id=target.id)
+        bot.unban_chat_member(
+            chat_id=self.config.GROUP_ID,
+            user_id=target.id)
+
+        bot.send_message(
+            chat_id=self.config.GROUP_ID,
+            text=messages.KICKED.format(user=self._display_user(target.id, target.first_name)),
+            parse_mode="HTML",
+            reply_to_message_id=update.message.message_id,
+        )
+
+        with self.db_session() as session:
+            quizpass = get_active_quizpass(session, target.id)
             if quizpass:
                 session.delete(quizpass)
 
