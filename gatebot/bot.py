@@ -67,6 +67,7 @@ class GateBot:
         dispatcher.add_handler(CommandHandler('start', self.command_start))
         dispatcher.add_handler(CommandHandler('kick', self.command_kick))
         dispatcher.add_handler(CommandHandler('kickme', self.command_kickme))
+        dispatcher.add_handler(CommandHandler('ban', self.command_ban))
 
         return updater
 
@@ -279,6 +280,48 @@ class GateBot:
 
         with self.db_session() as session:
             quizpass = get_active_quizpass(session, target.id)
+            if quizpass:
+                session.delete(quizpass)
+
+    def command_ban(self, bot: Bot, update: Update) -> None:
+        if not self._is_admin(bot, update.message.from_user.id):
+            bot.send_message(
+                chat_id=self.config.GROUP_ID,
+                text=messages.UNAUTHORIZED,
+                parse_mode="HTML",
+                reply_to_message_id=update.message.message_id,
+            )
+            return
+
+        self.logger.info(
+            "/ban command sent by %s",
+            self._log_user(update.message.from_user))
+
+        target = self._get_target(update)
+        if not target:
+            bot.send_message(
+                chat_id=self.config.GROUP_ID,
+                text=messages.NO_TARGET,
+                parse_mode="HTML",
+                reply_to_message_id=update.message.message_id,
+            )
+            return
+
+        target_id, target_name = target
+
+        bot.kick_chat_member(
+            chat_id=self.config.GROUP_ID,
+            user_id=target_id)
+
+        bot.send_message(
+            chat_id=self.config.GROUP_ID,
+            text=messages.BANNED.format(user=self._display_user(target_id, target_name)),
+            parse_mode="HTML",
+            reply_to_message_id=update.message.message_id,
+        )
+
+        with self.db_session() as session:
+            quizpass = get_active_quizpass(session, target_id)
             if quizpass:
                 session.delete(quizpass)
 

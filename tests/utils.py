@@ -415,6 +415,25 @@ class UserSession:
         assert text in kwargs['text']
         assert kwargs['parse_mode'] == "HTML"
 
+    def assert_sent_banned(self, session: 'UserSession', by_id: bool = False):
+        calls = self.last_bot_mock.send_message.call_args_list
+        assert len(calls) == 1
+
+        if by_id:
+            displayed_name = session.user_id
+        else:
+            displayed_name = session.escaped_first_name
+
+        user_link = (
+            f'<a href="tg://user?id={session.user_id}">'
+            f'{displayed_name}</a>')
+        text = messages.BANNED.format(user=user_link)
+
+        args, kwargs = calls[0]
+        assert kwargs['chat_id'] == self.gatebot.config.GROUP_ID
+        assert text in kwargs['text']
+        assert kwargs['parse_mode'] == "HTML"
+
     def assert_question_displayed(
                 self,
                 message_id: int,

@@ -106,7 +106,28 @@ def test_kickme(gatebot: GateBot):
     session.assert_question_displayed(1, QUESTION_1, pos=1)
 
 
-@pytest.mark.parametrize('command', ['kick'])
+@pytest.mark.parametrize('admin_status', ['admin', 'creator'])
+@pytest.mark.parametrize('method', ['by_id', 'by_text_mention', 'by_reply'])
+def test_ban(gatebot: GateBot, admin_status: str, method):
+    member_session = make_passed_member(gatebot, 'member')
+    admin_session = make_passed_member(gatebot, admin_status)
+
+    if method == 'by_id':
+        admin_session.play_sends_command_group(f"ban {member_session.user_id}")
+    elif method == 'by_text_mention':
+        admin_session.play_sends_command_group(f"ban 1", entities=[
+            mock_user_entity(member_session),
+        ])
+    elif method == 'by_reply':
+        admin_session.play_sends_command_group(f"ban 1", reply_to=member_session)
+    else:
+        raise ValueError(method)
+
+    admin_session.assert_was_kicked(user_id=member_session.user_id)
+    admin_session.assert_sent_banned(member_session, by_id=(method == 'by_id'))
+
+
+@pytest.mark.parametrize('command', ['kick', 'ban'])
 @pytest.mark.parametrize('method', ['by_id', 'by_text_mention', 'by_reply'])
 def test_unauthorized(gatebot: GateBot, command, method):
     member_session = make_passed_member(gatebot, 'member')

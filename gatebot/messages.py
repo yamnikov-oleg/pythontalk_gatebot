@@ -30,7 +30,8 @@ FAILED = (
 UNAUTHORIZED = "Haha, no."
 
 # Sent when admin sends a targetted command, but doesn't target any user.
-NO_TARGET = "Target a user by id, username or reply."
+NO_TARGET = "Target a user by id or reply."
 
 # Sent when a user is kicked.
 KICKED = "{user} was kicked and has to restart the quiz on join."
+BANNED = "{user} was banned."
