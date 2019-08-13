@@ -232,7 +232,7 @@
             "<code>ValueError</code>",
             "<code>[3, 2]</code>",
             "<code>[4, 3]</code>",
-            "5. <code>[4, 3, 2]</code>"
+            "<code>[4, 3, 2]</code>"
         ],
         "question": "What is the result of this code?\n\n<code>a = [1, 2, 3, 4, 5]</code>\n<code>a[3:1:-1]</code>"
     },
@@ -731,8 +731,8 @@
         "answer": 0,
         "options": [
             "<code>b'my bytes'.decode('utf-8')</code>",
+            "<code>b'my bytes'.decode_utf8()</code>",
             "<code>decode(b'my bytes', 'utf-8')</code>",
-            "<code>utf8.decode(b'my bytes')</code>",
             "<code>decode('utf-8', b'my bytes')</code>"
         ],
         "question": "How to decode a string from bytes?"
