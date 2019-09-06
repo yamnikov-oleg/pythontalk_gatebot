@@ -525,7 +525,7 @@
             "<code>0</code>",
             "<code>1</code>"
         ],
-        "question": "What does <code>True or False</code> evaluates to?"
+        "question": "What does <code>True or False</code> evaluate to?"
     },
     {
         "answer": 0,
@@ -535,7 +535,7 @@
             "<code>0</code>",
             "<code>1</code>"
         ],
-        "question": "What does <code>True and False</code> evaluates to?"
+        "question": "What does <code>True and False</code> evaluate to?"
     },
     {
         "answer": 2,
@@ -635,7 +635,7 @@
             "<code>'lo'</code>",
             "<code>True</code>"
         ],
-        "question": "What does this line evaluates to?\n<code>'HELlo'.lower()</code>"
+        "question": "What does this line evaluate to?\n<code>'HELlo'.lower()</code>"
     },
     {
         "answer": 3,
@@ -966,5 +966,15 @@
             "2 spaces"
         ],
         "question": "What indentation rule is recommended by PEP8?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "<code>TypeError</code>",
+            "2",
+            "<code>IntError</code>",
+            "<code>ValueError</code>"
+        ],
+        "question": "What does <code>1 + True</code> evaluate to?"
     }
 ]
