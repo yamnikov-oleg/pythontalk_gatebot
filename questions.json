@@ -976,5 +976,32 @@
             "<code>ValueError</code>"
         ],
         "question": "What does <code>1 + True</code> evaluate to?"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "<code>None</code>",
+            "<code>1</code>",
+            "<code>StopIteration</code>",
+            "<code>2</code>"
+        ],
+        "question": "What does <code>next(i for i in range(1,10,2) if not i%2)</code> evaluate to?"
+    },
+    {
+        "answer": 1,
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "question": "Is this valid python 3 code?\n\n<code>print 'Hello world!'</code>"
+    },
+    {
+        "answer": 2,
+        "options": [
+            "4",
+            "2",
+            "3"
+        ],
+        "question": "What does <code>1 + int(2.9)</code> evaluate to?"
     }
 ]
