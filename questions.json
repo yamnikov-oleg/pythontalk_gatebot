@@ -153,9 +153,9 @@
         "answer": 1,
         "options": [
             "<code>getter()</code> and <code>setter()</code>",
-            "<code>getter()</code>, <code>setter()</code> and <code>delete()</code>",
-            "<code>getter()</code> and <code>delete()</code>",
-            "<code>setter()</code> and <code>delete()</code>"
+            "<code>getter()</code>, <code>setter()</code> and <code>deleter()</code>",
+            "<code>getter()</code> and <code>deleter()</code>",
+            "<code>setter()</code> and <code>deleter()</code>"
         ],
         "question": "In Python, there is a built-in function <code>property()</code> that returns a property object. The property object has which of the following methods?"
     },
