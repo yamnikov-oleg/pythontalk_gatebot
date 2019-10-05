@@ -1003,5 +1003,17 @@
             "3"
         ],
         "question": "What does <code>1 + int(2.9)</code> evaluate to?"
+    },
+    {
+        "answer": 4,
+        "options": [
+            "<code>float(\"Nan\")</code>",
+            "<code>float(\"nan\")</code>",
+            "<code>float(\"NAN\")</code>",
+            "<code>float(\"NaN\")</code>",
+            "All of the above",
+            "None of the above"
+        ],
+        "question": "Which of the following options can be used to create a None value from a string?"
     }
 ]
