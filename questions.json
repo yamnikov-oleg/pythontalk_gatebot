@@ -1014,6 +1014,6 @@
             "All of the above",
             "None of the above"
         ],
-        "question": "Which of the following options can be used to create a None value from a string?"
+        "question": "Which of the following options can be used to create a NaN value from a string?"
     }
 ]
