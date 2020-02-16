@@ -3,24 +3,23 @@ import math
 import random
 import re
 from contextlib import contextmanager
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton, User
-from telegram.ext import (Updater, MessageHandler, CommandHandler, Filters,
-                          CallbackQueryHandler, Job)
+from sqlalchemy.orm import Session, sessionmaker
+from telegram import (Bot, ChatPermissions, InlineKeyboardButton,
+                      InlineKeyboardMarkup, User)
+from telegram.ext import (CallbackQueryHandler, CommandHandler, Filters, Job,
+                          MessageHandler, Updater)
 from telegram.update import Update
 from telegram.utils.request import Request
 
 from config.base import BaseConfig
 
 from . import messages
-from .models import (init_models, create_quizpass, get_active_quizpass,
-                     QuizPass)
+from .models import QuizPass, create_quizpass, get_active_quizpass, init_models
 from .questions import load_questions
-
 
 logging.basicConfig(
     level=logging.INFO,
@@ -122,10 +121,13 @@ class GateBot:
                     bot.restrict_chat_member(
                         chat_id=update.message.chat.id,
                         user_id=member.id,
-                        can_send_message=False,
-                        can_send_media_messages=False,
-                        can_send_other_messages=False,
-                        can_add_web_page_previews=False,
+                        permissions=ChatPermissions(
+                            can_send_message=False,
+                            can_send_media_messages=False,
+                            can_send_other_messages=False,
+                            can_add_web_page_previews=False,
+                            can_send_polls=False,
+                        ),
                     )
 
                     self.updater.job_queue.run_once(
@@ -486,10 +488,13 @@ class GateBot:
                     bot.restrict_chat_member(
                         chat_id=self.config.GROUP_ID,
                         user_id=update.callback_query.from_user.id,
-                        can_send_message=True,
-                        can_send_media_messages=True,
-                        can_send_other_messages=True,
-                        can_add_web_page_previews=True,
+                        permissions=ChatPermissions(
+                            can_send_message=True,
+                            can_send_media_messages=True,
+                            can_send_other_messages=True,
+                            can_add_web_page_previews=True,
+                            can_send_polls=True,
+                        ),
                     )
                 else:
                     bot.send_message(

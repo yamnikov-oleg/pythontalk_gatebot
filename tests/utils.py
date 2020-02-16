@@ -6,7 +6,7 @@ from random import randint
 from typing import Optional, List
 from unittest.mock import NonCallableMagicMock, patch
 
-from telegram import Bot, ChatMember, MessageEntity
+from telegram import Bot, ChatMember, MessageEntity, ChatPermissions
 
 from gatebot import models, messages
 from gatebot.bot import GateBot
@@ -228,7 +228,8 @@ class UserSession:
         for run_at, job in collected_jobs:
             run_at -= delta.total_seconds()
             if run_at < now:
-                job.run(self.last_bot_mock)
+                self.gatebot.updater.dispatcher.bot = self.last_bot_mock
+                job.run(self.gatebot.updater.dispatcher)
             else:
                 reschedule_jobs.append((run_at, job))
 
@@ -256,10 +257,13 @@ class UserSession:
         self.last_bot_mock.restrict_chat_member.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
             user_id=self.user_id,
-            can_send_message=False,
-            can_send_media_messages=False,
-            can_send_other_messages=False,
-            can_add_web_page_previews=False,
+            permissions=ChatPermissions(
+                can_send_message=False,
+                can_send_media_messages=False,
+                can_send_other_messages=False,
+                can_add_web_page_previews=False,
+                can_send_polls=False,
+            )
         )
 
     def assert_was_unrestricted(self):
@@ -267,10 +271,13 @@ class UserSession:
         self.last_bot_mock.restrict_chat_member.assert_called_once_with(
             chat_id=self.gatebot.config.GROUP_ID,
             user_id=self.user_id,
-            can_send_message=True,
-            can_send_media_messages=True,
-            can_send_other_messages=True,
-            can_add_web_page_previews=True,
+            permissions=ChatPermissions(
+                can_send_message=True,
+                can_send_media_messages=True,
+                can_send_other_messages=True,
+                can_add_web_page_previews=True,
+                can_send_polls=True,
+            ),
         )
 
     def assert_was_kicked(self, user_id=None):
