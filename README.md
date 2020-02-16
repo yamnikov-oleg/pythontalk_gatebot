@@ -1,6 +1,6 @@
 # Python Talk Gate Bot
 
-Telegram bot used for @pythontalk group to quiz new members on basic Python knowledge before letting them chat.
+Telegram bot used for @python_talk group to quiz new members on basic Python knowledge before letting them chat.
 
 ## Installation
 
