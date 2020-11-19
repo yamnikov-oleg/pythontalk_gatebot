@@ -2,12 +2,12 @@
     {
         "answer": 1,
         "options": [
-            "<code>__iter__()</code>",
-            "<code>__iter__()</code> and <code>__next__()</code>",
-            "<code>__iter__()</code> and <code>__super__()</code>",
-            "<code>__iter__()</code>, <code>__super__()</code> and <code>__next__()</code>"
+            "Implement <code>__next__</code> method",
+            "Implement <code>__iter__</code> or <code>__getitem__</code> method",
+            "Implement <code>next</code> method",
+            "Implement <code>iter</code> or <code>getitem</code> method"
         ],
-        "question": "What are the method(s) that iterator object must implement?"
+        "question": "How can you make an object iterable with a for loop?"
     },
     {
         "answer": 1,
