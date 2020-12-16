@@ -28,6 +28,9 @@ logging.basicConfig(
 
 
 class GateBot:
+    """
+    The main class of the bot.
+    """
     def __init__(self, config: BaseConfig) -> None:
         self.config = config
 
@@ -81,16 +84,24 @@ class GateBot:
         return s.replace("<", "&lt;").replace(">", "&gt;")
 
     def _display_user(self, id, first_name) -> str:
+        """Returns an HTML link to the user with the given id and first name."""
         return (
             f'<a href="tg://user?id={id}">'
             f'{self._escape_html(first_name)}'
             '</a>')
 
     def _log_user(self, user: User) -> str:
+        """
+        Returns a string represention of the user to be used in logs.
+        """
         return f"{user.first_name} (id={user.id})"
 
     @contextmanager
     def db_session(self):
+        """
+        Starts a DB session. Commits it after the nested code is finished, unless
+        it raises an exception, in which case rolls back.
+        """
         session = self.db_sessionmaker()
         try:
             yield session
@@ -102,11 +113,17 @@ class GateBot:
             session.close()
 
     def run(self) -> None:
+        """
+        Runs the bot. This method blocks until interrupted by a signal.
+        """
         self.logger.info("GateBot started")
         self.logger.info("Loaded questions: %s", len(self.questions))
         self.updater.start_polling()
 
     def new_chat_members(self, bot: Bot, update: Update) -> None:
+        """
+        Handles user join event.
+        """
         with self.db_session() as session:
             for member in update.message.new_chat_members:
                 self.logger.info(
@@ -145,6 +162,9 @@ class GateBot:
             )
 
     def left_chat_member(self, bot: Bot, update: Update) -> None:
+        """
+        Handles user leaving event.
+        """
         self.logger.info(
             "User left: %s", self._log_user(update.message.left_chat_member))
         if self.config.DELETE_LEAVE_MESSAGES:
@@ -154,6 +174,11 @@ class GateBot:
             )
 
     def job_kick_if_inactive(self, bot: Bot, job: Job):
+        """
+        A background job, executed with a delay from the python-telegram-bot's job queue.
+        Expects job context to a user id.
+        When executed, kicks the user if they haven't started the quiz yet.
+        """
         with self.db_session() as session:
             user_id = job.context
             quizpass = get_active_quizpass(session, user_id)
@@ -169,6 +194,9 @@ class GateBot:
                     user_id=user_id)
 
     def command_start(self, bot: Bot, update: Update) -> None:
+        """
+        Handles /start command.
+        """
         if update.message.chat.id != update.message.from_user.id:
             # Ignore commands sent not in pm
             return
@@ -196,6 +224,13 @@ class GateBot:
         )
 
     def _get_target(self, update: Update) -> Optional[Tuple[int, str]]:
+        """
+        Returns the user targetted by the command. A user can be targetted either
+        by a mention in the message (/cmd @user), by reply to one of their messages or
+        by passing their ID after the command (/cmd 1234).
+
+        Returns the ID and the first name of the user or None if no target was found.
+        """
         if update.message.entities:
             for entity in update.message.entities:
                 if entity.user:
@@ -214,10 +249,27 @@ class GateBot:
         return None
 
     def _is_admin(self, bot: Bot, user_id: int) -> bool:
+        """
+        Returns True of the user is an admin of the group chat.
+        """
         chat_member = bot.get_chat_member(self.config.GROUP_ID, user_id)
         return chat_member.status in ['creator', 'admin']
 
     def command_kick(self, bot: Bot, update: Update) -> None:
+        """
+        Handles /kick admin command.
+        Removes the user from the group and clears their quiz score so that
+        they have to pass the quiz again on rejoin.
+
+        Usage:
+
+        /kick @user_mention
+            By a mention.
+        /kick 1234
+            By user id.
+        /kick
+            By reply to a message.
+        """
         if not self._is_admin(bot, update.message.from_user.id):
             bot.send_message(
                 chat_id=self.config.GROUP_ID,
@@ -263,6 +315,11 @@ class GateBot:
                 session.delete(quizpass)
 
     def command_kickme(self, bot: Bot, update: Update) -> None:
+        """
+        Handles /kickme command.
+        Kicks the user who ran the command the same way /kick does.
+        Can be executed by anybody.
+        """
         self.logger.info(
             "/kickme command sent by %s",
             self._log_user(update.message.from_user))
@@ -289,6 +346,19 @@ class GateBot:
                 session.delete(quizpass)
 
     def command_ban(self, bot: Bot, update: Update) -> None:
+        """
+        Handles /ban admin command.
+        Permanently bans the user.
+
+        Usage:
+
+        /ban @user_mention
+            By a mention.
+        /ban 1234
+            By user id.
+        /ban
+            By reply to a message.
+        """
         if not self._is_admin(bot, update.message.from_user.id):
             bot.send_message(
                 chat_id=self.config.GROUP_ID,
@@ -331,6 +401,9 @@ class GateBot:
                 session.delete(quizpass)
 
     def callback_query(self, bot: Bot, update: Update) -> None:
+        """
+        Handles callback queries from the inline buttons.
+        """
         answer_re = re.compile(r'^answer_(\d+)$')
         answer_match = answer_re.match(update.callback_query.data)
 
@@ -350,6 +423,9 @@ class GateBot:
             self.callback_query_unknown(bot, update)
 
     def callback_query_unknown(self, bot: Bot, update: Update) -> None:
+        """
+        Handles invalid callback query.
+        """
         self.logger.info(
             "Unknown callback query '%s' from %s",
             update.callback_query.data,
@@ -359,11 +435,20 @@ class GateBot:
         )
 
     def callback_query_ignore(self, bot: Bot, update: Update) -> None:
+        """
+        Handles "ignore" callback query. Does not do anything.
+        "ignore" callback query is used on inline buttons that don't do anything.
+        """
         bot.answer_callback_query(
             callback_query_id=update.callback_query.id,
         )
 
     def callback_query_start_quiz(self, bot: Bot, update: Update) -> None:
+        """
+        Handles "start_quiz" callback_query.
+        Prepares the quiz for the user and displays it or displays an existing quiz
+        if they have created it previously.
+        """
         self.logger.info(
             "Callback query 'start_quiz' from %s",
             self._log_user(update.callback_query.from_user))
@@ -397,6 +482,10 @@ class GateBot:
             )
 
     def callback_query_next(self, bot: Bot, update: Update) -> None:
+        """
+        Handles "next" callback query.
+        Edits the message to display the next question in the quiz.
+        """
         self.logger.info(
             "Callback query 'next' from %s",
             self._log_user(update.callback_query.from_user))
@@ -421,6 +510,10 @@ class GateBot:
             )
 
     def callback_query_prev(self, bot: Bot, update: Update) -> None:
+        """
+        Handles "prev" callback query.
+        Edits the message to display the prev question in the quiz.
+        """
         self.logger.info(
             "Callback query 'prev' from %s",
             self._log_user(update.callback_query.from_user))
@@ -446,6 +539,11 @@ class GateBot:
 
     def callback_query_answer(
             self, bot: Bot, update: Update, answer: int) -> None:
+        """
+        Handles "answer_N" callback query.
+        Answers the currently selected question with the answer with index N.
+        Edits the message to display the result.
+        """
         self.logger.info(
             "Callback query 'answer_%s' from %s",
             answer,
@@ -515,6 +613,10 @@ class GateBot:
                     )
 
     def callback_query_share_result(self, bot: Bot, update: Update) -> None:
+        """
+        Handles "share_result" callback query.
+        Sends user's score to the group chat.
+        """
         self.logger.info(
             "Callback query 'share_result' from %s",
             self._log_user(update.callback_query.from_user))
@@ -552,6 +654,12 @@ class GateBot:
             session.commit()
 
     def _generate_quizpass(self, session: Session, user_id: int) -> QuizPass:
+        """
+        Creates a new quiz pass for the given user from randomly selected
+        questions.
+
+        Returns the created QuizPass object.
+        """
         questions = random.sample(
             self.questions,
             self.config.QUESTIONS_PER_QUIZ,
@@ -567,7 +675,7 @@ class GateBot:
             self, session: Session, bot: Bot, user_id: int) -> bool:
         """
         Checks if user can start/restart quiz. If they can, returns True.
-        If they can't sends appropriate message to the user and returns False.
+        If they can't, sends appropriate message to the user and returns False.
         """
         quizpass = get_active_quizpass(session, user_id)
         if quizpass and quizpass.is_finished:

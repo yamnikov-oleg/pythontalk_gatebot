@@ -3,6 +3,9 @@ from typing import List
 
 
 class Question:
+    """
+    A single question of the quiz.
+    """
     def __init__(self, text: str, options: List[str], answer: int):
         self.text = text
         self.options = options
@@ -14,6 +17,9 @@ class Question:
 
 
 def load_questions(path: str) -> List[Question]:
+    """
+    Parses the questions file, validates it and returns the list of questions.
+    """
     with open(path) as f:
         question_dicts = json.load(f)
 
