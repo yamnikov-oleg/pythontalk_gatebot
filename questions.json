@@ -452,8 +452,8 @@
         "answer": 2,
         "options": [
             "It is impossible",
-            "<code>a.__b__</code>",
-            "<code>a._a__b__</code>"
+            "<code>a.__b_</code>",
+            "<code>a._a__b_</code>"
         ],
         "question": "How to get access to <code>__b_</code> in outside of class <code>a</code>?\n\n<code>class a:</code>\n<code>    __b_ = \"hello\"</code>"
     },
@@ -982,7 +982,7 @@
         "options": [
             "<code>None</code>",
             "<code>1</code>",
-            "<code>StopIteration</code>",
+            "It raises <code>StopIteration</code>",
             "<code>2</code>"
         ],
         "question": "What does <code>next(i for i in range(1,10,2) if not i%2)</code> evaluate to?"
