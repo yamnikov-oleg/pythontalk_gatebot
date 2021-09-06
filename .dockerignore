@@ -1,0 +1,9 @@
+venv/
+.vscode/
+fabfile.py
+*.db
+.pytest_cache
+config/local.py
+*.img
+*.tar.gz
+.dockerignore

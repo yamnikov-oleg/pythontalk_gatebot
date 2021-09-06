@@ -1,7 +1,6 @@
 FROM python:3.7-alpine
 
-RUN apk update && \
-    apk add build-base libffi-dev postgresql-dev
+RUN apk --no-cache add build-base libffi-dev postgresql-dev
 
 RUN mkdir /app
 WORKDIR /app

@@ -79,6 +79,9 @@ class QuizPass(Base):
 
 
 class QuizItem(Base):
+    """
+    A single question of a quiz and the answer given to it by the user.
+    """
     __tablename__ = 'quizitem'
 
     id = Column(Integer, primary_key=True)
@@ -119,6 +122,9 @@ class QuizItem(Base):
 
 
 class Option(Base):
+    """
+    An option of the question of a QuizItem.
+    """
     __tablename__ = 'option'
 
     id = Column(Integer, primary_key=True)
@@ -144,6 +150,13 @@ def create_quizpass(
             questions: List[Question],
             correct_required: int,
         ) -> QuizPass:
+    """
+    Creates a new QuizPass.
+
+    :param user_id: The user passing the quiz.
+    :param questions: The list of questions to be asked.
+    :param correct_required: The number of correct answers required by the quiz.
+    """
     quizpass = QuizPass(
         user_id=user_id,
         correct_required=correct_required,
@@ -174,6 +187,9 @@ def create_quizpass(
 
 
 def get_active_quizpass(session: Session, user_id: int) -> Optional[QuizPass]:
+    """
+    Returns the quiz pass that the user is currently passing, or None if there's none.
+    """
     return session.query(QuizPass)\
         .filter(QuizPass.user_id == user_id)\
         .order_by(QuizPass.created_at.desc())\

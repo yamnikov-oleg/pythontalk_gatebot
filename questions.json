@@ -2,12 +2,12 @@
     {
         "answer": 1,
         "options": [
-            "<code>__iter__()</code>",
-            "<code>__iter__()</code> and <code>__next__()</code>",
-            "<code>__iter__()</code> and <code>__super__()</code>",
-            "<code>__iter__()</code>, <code>__super__()</code> and <code>__next__()</code>"
+            "Implement <code>__next__</code> method",
+            "Implement <code>__iter__</code> or <code>__getitem__</code> method",
+            "Implement <code>next</code> method",
+            "Implement <code>iter</code> or <code>getitem</code> method"
         ],
-        "question": "What are the method(s) that iterator object must implement?"
+        "question": "How can you make an object iterable with a for loop?"
     },
     {
         "answer": 1,
@@ -153,9 +153,9 @@
         "answer": 1,
         "options": [
             "<code>getter()</code> and <code>setter()</code>",
-            "<code>getter()</code>, <code>setter()</code> and <code>delete()</code>",
-            "<code>getter()</code> and <code>delete()</code>",
-            "<code>setter()</code> and <code>delete()</code>"
+            "<code>getter()</code>, <code>setter()</code> and <code>deleter()</code>",
+            "<code>getter()</code> and <code>deleter()</code>",
+            "<code>setter()</code> and <code>deleter()</code>"
         ],
         "question": "In Python, there is a built-in function <code>property()</code> that returns a property object. The property object has which of the following methods?"
     },
@@ -452,8 +452,8 @@
         "answer": 2,
         "options": [
             "It is impossible",
-            "<code>a.__b__</code>",
-            "<code>a._a__b__</code>"
+            "<code>a.__b_</code>",
+            "<code>a._a__b_</code>"
         ],
         "question": "How to get access to <code>__b_</code> in outside of class <code>a</code>?\n\n<code>class a:</code>\n<code>    __b_ = \"hello\"</code>"
     },
@@ -982,7 +982,7 @@
         "options": [
             "<code>None</code>",
             "<code>1</code>",
-            "<code>StopIteration</code>",
+            "It raises <code>StopIteration</code>",
             "<code>2</code>"
         ],
         "question": "What does <code>next(i for i in range(1,10,2) if not i%2)</code> evaluate to?"
@@ -1014,6 +1014,6 @@
             "All of the above",
             "None of the above"
         ],
-        "question": "Which of the following options can be used to create a None value from a string?"
+        "question": "Which of the following options can be used to create a NaN value from a string?"
     }
 ]

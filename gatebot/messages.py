@@ -1,3 +1,8 @@
+"""
+Templates of the messages sent by the bot.
+You can edit these or translate them to another language.
+"""
+
 GETTING_STARTED = (
     "Hello fellow pythonista!\n\n"
     "You're going to be presented with {questions_total} randomly picked "
