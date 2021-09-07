@@ -1015,5 +1015,16 @@
             "None of the above"
         ],
         "question": "Which of the following options can be used to create a NaN value from a string?"
+    },
+    {
+        "answer":2,
+        "options":[
+            "<code>dict(**{'a': 1}, **{'b': 1})</code>",
+            "<code>dict({'a': 1}, **{'b': 1})</code>",
+            "<code>{'a': 1} + {'b': 1}</code>",
+            "<code>{'a': 1} | {'b': 1}</code>",
+            "None of the above"
+        ],
+        "question": "Which if of the following expressions trying to merge the dicts leads to an error assuming python 3.9+?"
     }
 ]
