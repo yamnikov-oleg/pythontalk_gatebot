@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 
+from config.base import BaseConfig
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from telegram import (Bot, ChatPermissions, InlineKeyboardButton,
@@ -14,8 +15,6 @@ from telegram.ext import (CallbackQueryHandler, CommandHandler, Filters, Job,
                           MessageHandler, Updater)
 from telegram.update import Update
 from telegram.utils.request import Request
-
-from config.base import BaseConfig
 
 from . import messages
 from .models import QuizPass, create_quizpass, get_active_quizpass, init_models
@@ -272,7 +271,7 @@ class GateBot:
         """
         if not self._is_admin(bot, update.message.from_user.id):
             bot.send_message(
-                chat_id=self.config.GROUP_ID,
+                chat_id=update.message.chat.id,
                 text=messages.UNAUTHORIZED,
                 parse_mode="HTML",
                 reply_to_message_id=update.message.message_id,
@@ -361,7 +360,7 @@ class GateBot:
         """
         if not self._is_admin(bot, update.message.from_user.id):
             bot.send_message(
-                chat_id=self.config.GROUP_ID,
+                chat_id=update.message.chat.id,
                 text=messages.UNAUTHORIZED,
                 parse_mode="HTML",
                 reply_to_message_id=update.message.message_id,
