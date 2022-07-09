@@ -285,7 +285,7 @@ class GateBot:
         target = self._get_target(update)
         if not target:
             bot.send_message(
-                chat_id=self.config.GROUP_ID,
+                chat_id=update.message.chat.id,
                 text=messages.NO_TARGET,
                 parse_mode="HTML",
                 reply_to_message_id=update.message.message_id,
@@ -302,7 +302,7 @@ class GateBot:
             user_id=target_id)
 
         bot.send_message(
-            chat_id=self.config.GROUP_ID,
+            chat_id=update.message.chat.id,
             text=messages.KICKED.format(user=self._display_user(target_id, target_name)),
             parse_mode="HTML",
             reply_to_message_id=update.message.message_id,
@@ -333,7 +333,7 @@ class GateBot:
             user_id=target.id)
 
         bot.send_message(
-            chat_id=self.config.GROUP_ID,
+            chat_id=update.message.chat.id,
             text=messages.KICKED.format(user=self._display_user(target.id, target.first_name)),
             parse_mode="HTML",
             reply_to_message_id=update.message.message_id,
@@ -374,7 +374,7 @@ class GateBot:
         target = self._get_target(update)
         if not target:
             bot.send_message(
-                chat_id=self.config.GROUP_ID,
+                chat_id=update.message.chat.id,
                 text=messages.NO_TARGET,
                 parse_mode="HTML",
                 reply_to_message_id=update.message.message_id,
@@ -388,7 +388,7 @@ class GateBot:
             user_id=target_id)
 
         bot.send_message(
-            chat_id=self.config.GROUP_ID,
+            chat_id=update.message.chat.id,
             text=messages.BANNED.format(user=self._display_user(target_id, target_name)),
             parse_mode="HTML",
             reply_to_message_id=update.message.message_id,
